@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+    colors="true"
+    verbose="true"
+    bootstrap="vendor/autoload.php"
+>
+    <php>
+        <ini name="date.timezone" value="UTC" />
+        <ini name="display_errors" value="On" />
+        <ini name="display_startup_errors" value="On" />
+        <ini name="error_reporting" value="E_ALL" />
+    </php>
+
+    <testsuites>
+        <testsuite name="AnnotationExtension">
+            <file>tests/Annotation/AnnotationExtensionTest.php</file>
+        </testsuite>
+    </testsuites>
+
+    <extensions>
+        <extension class="PHPUnitExtras\Tests\Annotation\LoggableAnnotationExtension"></extension>
+    </extensions>
+</phpunit>

@@ -1,0 +1,46 @@
+<?php
+
+declare(strict_types=1);
+
+namespace PHPUnitExtras;
+
+use PhpCsFixer\Config;
+
+$header = <<<EOF
+This file is part of the rybakit/phpunit-extras package.
+
+(c) Eugene Leonovich <gen.work@gmail.com>
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+EOF;
+
+return Config::create()
+    ->setUsingCache(false)
+    ->setRiskyAllowed(true)
+    ->setRules([
+        '@Symfony' => true,
+        '@Symfony:risky' => true,
+        'array_syntax' => ['syntax' => 'short'],
+        'binary_operator_spaces' => ['operators' => ['=' => null, '=>' => null]],
+        'declare_strict_types' => true,
+        'no_useless_else' => true,
+        'no_useless_return' => true,
+        'ordered_imports' => [
+            'sort_algorithm' => 'alpha',
+            'imports_order' => ['class', 'function', 'const'],
+        ],
+        'phpdoc_align' => false,
+        'phpdoc_order' => true,
+        'phpdoc_to_comment' => false,
+        'phpdoc_separation' => false, // do not separate @param and @psalm-param
+        'return_type_declaration' => ['space_before' => 'one'],
+        'strict_comparison' => true,
+        'header_comment' => [
+            'comment_type' => 'PHPDoc',
+            'header' => $header,
+            'location' => 'after_open',
+            'separate' => 'both',
+        ],
+    ])
+;
