@@ -1,6 +1,6 @@
 {
     "name": "rybakit/phpunit-extras",
-    "description": "Custom annotations and expectations for PHPUnit",
+    "description": "Custom annotations and expectations for PHPUnit.",
     "keywords": ["phpunit", "annotations", "extensions", "assertions", "expectations", "custom"],
     "type": "library",
     "license": "MIT",
