@@ -15,7 +15,7 @@ namespace PHPUnitExtras\Annotation\Processor;
 
 use PHPUnit\Framework\Assert;
 use PHPUnitExtras\Annotation\InvalidAnnotationException;
-use PHPUnitExtras\Annotation\Processor\Requirement\Requirement;
+use PHPUnitExtras\Annotation\Requirement\Requirement;
 
 final class RequiresProcessor implements Processor
 {

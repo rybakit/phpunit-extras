@@ -20,9 +20,9 @@ use PHPUnitExtras\Annotation\PlaceholderResolver\TargetClassResolver;
 use PHPUnitExtras\Annotation\PlaceholderResolver\TargetMethodResolver;
 use PHPUnitExtras\Annotation\PlaceholderResolver\TmpDirResolver;
 use PHPUnitExtras\Annotation\Processor\Processor;
-use PHPUnitExtras\Annotation\Processor\Requirement\PackageRequirement;
-use PHPUnitExtras\Annotation\Processor\Requirement\Requirement;
 use PHPUnitExtras\Annotation\Processor\RequiresProcessor;
+use PHPUnitExtras\Annotation\Requirement\PackageRequirement;
+use PHPUnitExtras\Annotation\Requirement\Requirement;
 
 final class AnnotationProcessorBuilder
 {

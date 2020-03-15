@@ -15,8 +15,8 @@ namespace PHPUnitExtras\Tests\Annotation\Processor;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnitExtras\Annotation\InvalidAnnotationException;
-use PHPUnitExtras\Annotation\Processor\Requirement\Requirement;
 use PHPUnitExtras\Annotation\Processor\RequiresProcessor;
+use PHPUnitExtras\Annotation\Requirement\Requirement;
 
 final class RequiresProcessorTest extends TestCase
 {

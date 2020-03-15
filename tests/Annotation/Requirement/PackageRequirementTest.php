@@ -11,10 +11,10 @@
 
 declare(strict_types=1);
 
-namespace PHPUnitExtras\Tests\Annotation\Processor\Requirement;
+namespace PHPUnitExtras\Tests\Annotation\Requirement;
 
 use PHPUnit\Framework\TestCase;
-use PHPUnitExtras\Annotation\Processor\Requirement\PackageRequirement;
+use PHPUnitExtras\Annotation\Requirement\PackageRequirement;
 
 final class PackageRequirementTest extends TestCase
 {

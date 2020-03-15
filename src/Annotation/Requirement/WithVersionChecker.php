@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace PHPUnitExtras\Annotation\Processor\Requirement;
+namespace PHPUnitExtras\Annotation\Requirement;
 
 use Composer\Semver\Semver;
 
