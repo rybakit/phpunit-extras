@@ -19,6 +19,12 @@
         </testsuite>
     </testsuites>
 
+    <filter>
+        <whitelist>
+            <directory>src</directory>
+        </whitelist>
+    </filter>
+
     <extensions>
         <extension class="PHPUnitExtras\Tests\Annotation\LoggableAnnotationExtension"></extension>
     </extensions>
