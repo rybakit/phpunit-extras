@@ -13,4 +13,20 @@
             <directory name="vendor" />
         </ignoreFiles>
     </projectFiles>
+
+    <issueHandlers>
+        <InternalClass>
+            <errorLevel type="suppress">
+                <referencedClass name="PHPUnit\Framework\Exception" />
+                <referencedClass name="PHPUnit\Util\Test" />
+            </errorLevel>
+        </InternalClass>
+        <InternalMethod>
+            <errorLevel type="suppress">
+                <referencedMethod name="PHPUnit\Framework\Exception::__construct" />
+                <referencedMethod name="PHPUnit\Framework\TestCase::getName" />
+                <referencedMethod name="PHPUnit\Util\Test::parseTestMethodAnnotations" />
+            </errorLevel>
+        </InternalMethod>
+    </issueHandlers>
 </psalm>

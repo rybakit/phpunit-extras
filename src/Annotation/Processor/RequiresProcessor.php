@@ -37,7 +37,7 @@ final class RequiresProcessor implements Processor
     /**
      * @param array<array-key, Requirement> $requirements
      */
-    public function __construct(array $requirements = [])
+    public function __construct(array $requirements)
     {
         foreach ($requirements as $requirement) {
             $this->addRequirement($requirement);

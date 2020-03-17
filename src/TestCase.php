@@ -28,6 +28,10 @@ abstract class TestCase extends BaseTestCase
      */
     final protected function processTestCaseAnnotations() : void
     {
+        /**
+         * @psalm-suppress TypeDoesNotContainType
+         * TestCase::getName() may return null on PHPUnit 7
+         */
         $this->processAnnotations(\get_class($this), $this->getName(false) ?? '');
     }
 
