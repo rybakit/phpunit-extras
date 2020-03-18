@@ -28,6 +28,8 @@ final class RandomIntResolverTest extends TestCase
         $resolver = new RandomIntResolver();
         $resolvedValue = $resolver->resolve($value, new Target('fooClass'));
 
+        // prior to PHPUnit 9 assertContains() does loose comparison
+        // self::assertContains($resolvedValue, $expectedResults);
         self::assertTrue(\in_array($resolvedValue, $expectedResults, true));
     }
 
