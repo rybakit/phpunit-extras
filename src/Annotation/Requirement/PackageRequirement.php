@@ -13,12 +13,11 @@ declare(strict_types=1);
 
 namespace PHPUnitExtras\Annotation\Requirement;
 
+use Composer\Semver\Semver;
 use PackageVersions\Versions;
 
 final class PackageRequirement implements Requirement
 {
-    use WithVersionChecker;
-
     public function getName() : string
     {
         return 'package';
@@ -39,7 +38,7 @@ final class PackageRequirement implements Requirement
         }
 
         $packageVersion = explode('@', $packageVersion, 2)[0];
-        if ($this->versionSatisfies($packageVersion, $versionConstraints)) {
+        if (Semver::satisfies($packageVersion, $versionConstraints)) {
             return null;
         }
 
