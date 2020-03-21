@@ -53,11 +53,11 @@ final class AnnotationTestCaseTest extends TestCase
         }
     }
 
-    public function testResolveAnnotationPlaceholdersSubstitutesAllPlaceholders() : void
+    public function testResolvePlaceholdersSubstitutesAllPlaceholders() : void
     {
         self::assertSame(
             self::getLogFilename(),
-            $this->resolveAnnotationPlaceholders('%tmp_dir%/%target_class%.log')
+            $this->resolvePlaceholders('%tmp_dir%/%target_class%.log')
         );
     }
 

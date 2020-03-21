@@ -35,7 +35,7 @@ abstract class TestCase extends BaseTestCase
         $this->processAnnotations(\get_class($this), $this->getName(false) ?? '');
     }
 
-    final protected function resolveAnnotationPlaceholders(string $value) : string
+    final protected function resolvePlaceholders(string $value) : string
     {
         $resolver = $this->getAnnotationProcessor()->getPlaceholderResolver();
 
