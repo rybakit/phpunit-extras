@@ -3,7 +3,17 @@
 ![Continuous Integration](https://github.com/rybakit/phpunit-extras/workflows/Continuous%20Integration/badge.svg)
 
 This repository contains functionality that makes it easy to create and integrate
-your own annotations and expectations into the [PHPUnit](https://phpunit.de/) framework. 
+your own annotations and expectations into the [PHPUnit](https://phpunit.de/) framework.
+In other words, with this library, your tests may look like this:
+
+![https://raw.githubusercontent.com/rybakit/phpunit-extras/media/phpunit-extras-example.png](../media/phpunit-extras-example.png?raw=true)
+
+where:
+1. `MySqlServer ^5.6|^8.0` is a custom requirement
+2. `@sql` is a custom annotation
+3. `%target_method%` is an annotation placeholder
+4. `expectSelectStatementToBeExecutedOnce()` is a custom expectation.
+
 
 
 ## Installation
