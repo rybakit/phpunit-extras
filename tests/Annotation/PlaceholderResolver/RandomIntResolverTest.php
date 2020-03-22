@@ -36,13 +36,15 @@ final class RandomIntResolverTest extends TestCase
     public function provideResolveSubstitutesSupportedPlaceholdersData() : iterable
     {
         return [
-            ['[%random_int(-1, 1)%]', ['-1', '0', '1']],
-            ['[%random_int(-1, +1)%]', ['-1', '0', '1']],
-            ['[%random_int(-2, -1)%]', ['-2', '-1']],
-            ['[%random_int(-1, -1)%]', ['-1']],
-            ['[%random_int(+1, +1)%]', ['1']],
-            ['[%random_int(+0, +0)%]', ['0']],
-            ['[%random_int(+1, +2)%]', ['1', '2']],
+            ['[%random_int(-1, 1)%]', ['[-1]', '[0]', '[1]']],
+            ['[%random_int(-1, +1)%]', ['[-1]', '[0]', '[1]']],
+            ['[%random_int(-2, -1)%]', ['[-2]', '[-1]']],
+            ['[%random_int(-1, -1)%]', ['[-1]']],
+            ['[%random_int(+1, +1)%]', ['[1]']],
+            ['[%random_int(+0, +0)%]', ['[0]']],
+            ['[%random_int(+1, +2)%]', ['[1]', '[2]']],
+            ['[%random_int(1, 2)%,%random_int(3, 4)%]', ['[1,3]', '[2,3]', '[1,4]', '[2,4]']],
+            ['[%foobar%]', ['[%foobar%]']],
         ];
     }
 

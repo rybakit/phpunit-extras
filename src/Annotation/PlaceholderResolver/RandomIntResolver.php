@@ -25,14 +25,12 @@ final class RandomIntResolver implements PlaceholderResolver
 
     public function resolve(string $value, Target $target) : string
     {
-        if (!preg_match('/%random_int\b(?P<args>[^%]*)%/', $value, $match)) {
-            return $value;
-        }
+        return preg_replace_callback('/%random_int\b(?P<args>[^%]*)%/', static function (array $matches) use ($value) : string {
+            if (!preg_match('/\(\s*(?P<min>[+-]?\d+)\s*,\s*(?P<max>[+-]?\d+)\)/', $matches['args'], $args)) {
+                throw InvalidAnnotationException::invalidSyntax($value, 'invalid argument format for placeholder %random_int%');
+            }
 
-        if (!preg_match('/\(\s*(?P<min>[+-]?\d+)\s*,\s*(?P<max>[+-]?\d+)\)/', $match['args'], $args)) {
-            throw InvalidAnnotationException::invalidSyntax($value, 'invalid argument format for placeholder %random_int%');
-        }
-
-        return (string) random_int((int) $args['min'], (int) $args['max']);
+            return (string) random_int((int) $args['min'], (int) $args['max']);
+        }, $value);
     }
 }
