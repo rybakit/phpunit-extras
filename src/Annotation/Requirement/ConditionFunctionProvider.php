@@ -16,7 +16,7 @@ namespace PHPUnitExtras\Annotation\Requirement;
 use Symfony\Component\ExpressionLanguage\ExpressionFunction;
 use Symfony\Component\ExpressionLanguage\ExpressionFunctionProviderInterface;
 
-final class ConditionExpressionLanguageProvider implements ExpressionFunctionProviderInterface
+final class ConditionFunctionProvider implements ExpressionFunctionProviderInterface
 {
     public function getFunctions() : array
     {

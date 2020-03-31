@@ -26,7 +26,7 @@ final class ConditionRequirement implements Requirement
     public function __construct(array $context, ?ExpressionLanguage $language = null)
     {
         $this->context = $context;
-        $this->language = $language ?? new ExpressionLanguage(null, [new ConditionExpressionLanguageProvider()]);
+        $this->language = $language ?? new ExpressionLanguage(null, [new ConditionFunctionProvider()]);
     }
 
     public static function fromGlobals() : self
