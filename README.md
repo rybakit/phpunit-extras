@@ -34,7 +34,7 @@ composer require --dev composer/semver
 composer require --dev ocramius/package-versions
 ```
 
-*To use expectations based on expressions:*
+*To use expression-based requirements and/or expectations:*
 ```bash
 composer require --dev symfony/expression-language
 ```

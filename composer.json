@@ -25,7 +25,7 @@
     "suggest": {
         "composer/semver": "For using version-related requirements",
         "ocramius/package-versions": "For using the 'package' requirement",
-        "symfony/expression-language": "For using expectations based on expressions"
+        "symfony/expression-language": "For using expression-based requirements and/or expectations"
     },
     "autoload": {
         "psr-4": {
