@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace PHPUnitExtras\Expectation;
 
-trait WithExpectations
+trait Expectations
 {
     /** @var ChainExpectation|null */
     private $expectations;

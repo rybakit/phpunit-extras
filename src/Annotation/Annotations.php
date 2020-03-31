@@ -15,7 +15,7 @@ namespace PHPUnitExtras\Annotation;
 
 use PHPUnit\Util\Test;
 
-trait WithAnnotations
+trait Annotations
 {
     /** @var AnnotationProcessor|null */
     private $annotationProcessor;

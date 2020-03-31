@@ -15,13 +15,13 @@ namespace PHPUnitExtras;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use PHPUnitExtras\Annotation\Target;
-use PHPUnitExtras\Annotation\WithAnnotations;
-use PHPUnitExtras\Expectation\WithExpectations;
+use PHPUnitExtras\Annotation\Annotations;
+use PHPUnitExtras\Expectation\Expectations;
 
 abstract class TestCase extends BaseTestCase
 {
-    use WithAnnotations;
-    use WithExpectations;
+    use Annotations;
+    use Expectations;
 
     /**
      * @before

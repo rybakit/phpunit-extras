@@ -17,7 +17,7 @@ use PHPUnit\Runner\BeforeTestHook;
 
 class AnnotationExtension implements BeforeTestHook
 {
-    use WithAnnotations;
+    use Annotations;
 
     public function executeBeforeTest(string $test) : void
     {
