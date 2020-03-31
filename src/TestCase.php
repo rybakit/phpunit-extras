@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace PHPUnitExtras;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use PHPUnitExtras\Annotation\Target;
 use PHPUnitExtras\Annotation\Annotations;
+use PHPUnitExtras\Annotation\Target;
 use PHPUnitExtras\Expectation\Expectations;
 
 abstract class TestCase extends BaseTestCase
