@@ -115,6 +115,8 @@ final class EstablishedAnnotationNames
         'large'                          => true,
         'medium'                         => true,
         'preserveGlobalState'            => true,
+        'preCondition'                   => true,
+        'postCondition'                  => true,
         'requires'                       => true,
         'runTestsInSeparateProcesses'    => true,
         'runInSeparateProcess'           => true,
