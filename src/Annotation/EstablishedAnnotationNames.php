@@ -19,6 +19,15 @@ namespace PHPUnitExtras\Annotation;
  */
 final class EstablishedAnnotationNames
 {
+    private const Reserved = [
+        'Annotation' => true,
+        'Attribute'  => true,
+        'Attributes' => true,
+        /* Can we enable this? 'Enum' => true, */
+        'Required'   => true,
+        'Target'     => true,
+    ];
+
     private const WidelyUsedNonStandard = [
         'fix'      => true,
         'fixme'    => true,
@@ -147,7 +156,8 @@ final class EstablishedAnnotationNames
         'phpcsSuppress' => true,
     ];
 
-    public const LIST = self::WidelyUsedNonStandard
+    public const LIST = self::Reserved
+        + self::WidelyUsedNonStandard
         + self::PhpDocumentor1
         + self::PhpDocumentor2
         + self::PHPUnit
