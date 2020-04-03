@@ -96,7 +96,7 @@ final class AnnotationProcessorBuilder
 
     public function ignoreEstablishedAnnotations() : self
     {
-        $this->ignoredAnnotations = EstablishedAnnotationNames::LIST + $this->ignoredAnnotations;
+        $this->ignoredAnnotations = EstablishedAnnotationNames::ALL + $this->ignoredAnnotations;
 
         return $this;
     }
