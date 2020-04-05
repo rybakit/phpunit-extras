@@ -53,7 +53,14 @@ final class EstablishedAnnotationNames
         'uses' => true,
     ];
 
-    public const ALL = self::PHPUNIT;
+    public const MISC = [
+        'fixme' => true,
+        'FIXME' => true,
+        'todo' => true,
+        'TODO' => true,
+    ];
+
+    public const ALL = self::PHPUNIT + self::MISC;
 
     private function __construct()
     {
