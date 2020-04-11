@@ -58,6 +58,7 @@ final class EstablishedAnnotationNames
         'FIXME' => true,
         'todo' => true,
         'TODO' => true,
+        'see' => true,
     ];
 
     public const ALL = self::PHPUNIT + self::MISC;
