@@ -21,6 +21,8 @@ class AnnotationExtension implements BeforeTestHook
 
     public function executeBeforeTest(string $test) : void
     {
-        $this->processAnnotations(...preg_split('/ |::/', $test));
+        /** @var class-string $class */
+        [$class, $method] = preg_split('/ |::/', $test);
+        $this->processAnnotations($class, $method);
     }
 }

@@ -24,7 +24,7 @@ final class ExpressionExpectationTest extends TestCase
 {
     use PHPUnitCompat;
 
-    /** @var ExpressionContext|MockObject $context */
+    /** @var ExpressionContext|MockObject */
     private $context;
 
     protected function setUp() : void

@@ -20,7 +20,7 @@ use PHPUnitExtras\Expectation\IsTruthyExpression;
 
 final class IsTruthyExpressionTest extends TestCase
 {
-    /** @var ExpressionContext|MockObject $context */
+    /** @var ExpressionContext|MockObject */
     private $context;
 
     protected function setUp() : void

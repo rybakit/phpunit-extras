@@ -32,7 +32,7 @@ abstract class TestCase extends BaseTestCase
          * @psalm-suppress TypeDoesNotContainType
          * TestCase::getName() may return null on PHPUnit 7
          */
-        $this->processAnnotations(\get_class($this), $this->getName(false) ?? '');
+        $this->processAnnotations(static::class, $this->getName(false) ?? '');
     }
 
     final protected function resolvePlaceholders(string $value) : string

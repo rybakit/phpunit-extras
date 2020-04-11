@@ -28,6 +28,9 @@ trait Annotations
         return AnnotationProcessorBuilder::fromDefaults();
     }
 
+    /**
+     * @param class-string $class
+     */
     private function processAnnotations(string $class, string $method) : void
     {
         $annotations = Test::parseTestMethodAnnotations($class, $method);

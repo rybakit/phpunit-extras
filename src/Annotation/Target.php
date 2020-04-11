@@ -20,6 +20,9 @@ final class Target
     private $className;
     private $methodName;
 
+    /**
+     * @param class-string $className
+     */
     public function __construct(string $className, ?string $methodName = null)
     {
         $this->className = $className;
