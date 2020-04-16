@@ -4,4 +4,5 @@ tests export-ignore
 .gitignore export-ignore
 .php_cs.dist export-ignore
 phpunit.xml.dist export-ignore
+phpunit-extension.xml export-ignore
 psalm.xml export-ignore
