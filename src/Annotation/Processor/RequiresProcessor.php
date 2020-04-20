@@ -32,7 +32,7 @@ final class RequiresProcessor implements Processor
     ];
 
     /** @var array<string, Requirement> */
-    private $requirements;
+    private $requirements = [];
 
     /**
      * @param array<array-key, Requirement> $requirements

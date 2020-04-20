@@ -25,6 +25,10 @@ final class PackageRequirement implements Requirement
 
     public function check(string $value) : ?string
     {
+        /**
+         * @var string $packageName
+         * @see https://github.com/vimeo/psalm/issues/3118
+         */
         [$packageName, $versionConstraints] = explode(' ', $value, 2) + [1 => null];
 
         try {

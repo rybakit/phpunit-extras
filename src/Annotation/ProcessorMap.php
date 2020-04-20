@@ -18,7 +18,7 @@ use PHPUnitExtras\Annotation\Processor\Processor;
 final class ProcessorMap
 {
     /** @var array<string, Processor> */
-    private $processors;
+    private $processors = [];
 
     /** @var array<string, true> */
     private $ignoredAnnotationNames;
