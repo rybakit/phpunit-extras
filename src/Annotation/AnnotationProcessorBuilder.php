@@ -22,6 +22,7 @@ use PHPUnitExtras\Annotation\PlaceholderResolver\TmpDirResolver;
 use PHPUnitExtras\Annotation\Processor\Processor;
 use PHPUnitExtras\Annotation\Processor\RequiresProcessor;
 use PHPUnitExtras\Annotation\Requirement\ConditionRequirement;
+use PHPUnitExtras\Annotation\Requirement\ConstantRequirement;
 use PHPUnitExtras\Annotation\Requirement\PackageRequirement;
 use PHPUnitExtras\Annotation\Requirement\Requirement;
 
@@ -47,6 +48,7 @@ final class AnnotationProcessorBuilder
         return (new self())
             ->ignoreEstablishedAnnotations()
             ->addRequirement(ConditionRequirement::fromGlobals())
+            ->addRequirement(new ConstantRequirement())
             ->addRequirement(new PackageRequirement())
             ->addPlaceholderResolver(new RandomIntResolver())
             ->addPlaceholderResolver(new TargetClassResolver())
