@@ -52,7 +52,7 @@ final class Target
     public function getMethodName() : string
     {
         if (null === $this->methodName) {
-            throw new \LogicException(sprintf('Class level target "%s" does not have method name.', $this->className));
+            throw new \LogicException(sprintf('Class level target "%s" does not have method name', $this->className));
         }
 
         return $this->methodName;
@@ -60,7 +60,11 @@ final class Target
 
     public function getMethodShortName() : string
     {
-        return preg_replace('/^test(\S+).*$/', '\1', $this->getMethodName());
+        $methodName = $this->getMethodName();
+
+        return 0 === strpos($methodName, 'test')
+            ? substr($methodName, 4)
+            : $methodName;
     }
 
     public function toString() : string
