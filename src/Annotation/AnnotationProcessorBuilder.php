@@ -15,7 +15,6 @@ namespace PHPUnitExtras\Annotation;
 
 use PHPUnitExtras\Annotation\PlaceholderResolver\ChainResolver;
 use PHPUnitExtras\Annotation\PlaceholderResolver\PlaceholderResolver;
-use PHPUnitExtras\Annotation\PlaceholderResolver\RandomIntResolver;
 use PHPUnitExtras\Annotation\PlaceholderResolver\TargetClassResolver;
 use PHPUnitExtras\Annotation\PlaceholderResolver\TargetMethodResolver;
 use PHPUnitExtras\Annotation\PlaceholderResolver\TmpDirResolver;
@@ -50,7 +49,6 @@ final class AnnotationProcessorBuilder
             ->addRequirement(ConditionRequirement::fromGlobals())
             ->addRequirement(new ConstantRequirement())
             ->addRequirement(new PackageRequirement())
-            ->addPlaceholderResolver(new RandomIntResolver())
             ->addPlaceholderResolver(new TargetClassResolver())
             ->addPlaceholderResolver(new TargetMethodResolver())
             ->addPlaceholderResolver(new TmpDirResolver())
