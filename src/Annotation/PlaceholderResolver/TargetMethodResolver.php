@@ -24,13 +24,13 @@ final class TargetMethodResolver implements PlaceholderResolver
 
     public function resolve(string $value, Target $target) : string
     {
-        if (null === $methodName = $target->tryGetMethodName()) {
+        if (!$target->isOnMethod()) {
             return $value;
         }
 
         return strtr($value, [
             '%target_method%' => $target->getMethodShortName(),
-            '%target_method_full%' => $methodName,
+            '%target_method_full%' => $target->getMethodName(),
         ]);
     }
 }

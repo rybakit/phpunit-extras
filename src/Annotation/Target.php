@@ -44,9 +44,9 @@ final class Target
         return (new \ReflectionClass($this->className))->getShortName();
     }
 
-    public function tryGetMethodName() : ?string
+    public function isOnMethod() : bool
     {
-        return $this->methodName;
+        return null !== $this->methodName;
     }
 
     public function getMethodName() : string
