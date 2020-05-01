@@ -14,13 +14,11 @@ declare(strict_types=1);
 namespace PHPUnitExtras\Expectation;
 
 use PHPUnit\Framework\ExpectationFailedException;
-use SebastianBergmann\RecursionContext\InvalidArgumentException;
 
 interface Expectation
 {
     /**
      * @throws ExpectationFailedException
-     * @throws InvalidArgumentException
      */
     public function verify() : void;
 }
