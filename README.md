@@ -31,6 +31,8 @@ where:
      * [TmpDir](#tmpdir)
    * [Creating your own annotation](#creating-your-own-annotation)
  * [Expectations](#expectations)
+   * [Usage example](#usage-example)
+   * [Advanced example](#advanced-example)
  * [Testing](#testing)
  * [License](#license)
 
@@ -72,7 +74,7 @@ composer require --dev rybakit/phpunit-extras \
 PHPUnit supports a variety of annotations, the full list of which can be found [here](https://phpunit.readthedocs.io/en/latest/annotations.html).
 With this library, you can easily expand this list by using one of the following options:
 
-**Inheriting from the base test case class**
+#### Inheriting from the base test case class
 
 ```php
 use PHPUnitExtras\TestCase;
@@ -83,13 +85,13 @@ final class MyTest extends TestCase
 }
 ```
 
-**Using a trait**
+#### Using a trait
 
 ```php
 use PHPUnit\Framework\TestCase;
 use PHPUnitExtras\Annotation\Annotations;
 
-final class MyTest extends TestCase                                   
+final class MyTest extends TestCase
 {
     use Annotations;
 
@@ -97,7 +99,7 @@ final class MyTest extends TestCase
 }
 ```
  
-**Registering an extension**
+#### Registering an extension
 
 ```xml
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -126,7 +128,7 @@ The annotation processor is a class that implements the behavior of your annotat
 
 #### Requires
 
-This processor extends the standard PHPUnit [@requires](https://phpunit.readthedocs.io/en/9.1/annotations.html#requires) 
+This processor extends the standard PHPUnit [@requires](https://phpunit.readthedocs.io/en/latest/annotations.html#requires) 
 annotation by allowing you to add your own requirements.
 
 ### Requirements
@@ -152,7 +154,7 @@ By default, you can refer to the following [superglobal variables](https://www.p
  * @requires condition server.AWS_ACCESS_KEY_ID
  * @requires condition server.AWS_SECRET_ACCESS_KEY
  */
-final class AwsS3AdapterTest extends TestCase 
+final class AwsS3AdapterTest extends TestCase
 {
     // ...
 }
@@ -311,15 +313,49 @@ final class SqlProcessor implements Processor
 ```
 
 That's it. All this processor does is register the `@sql` tag and call `PDO::exec()`, passing everything
-that comes after the tag as an argument. In other words, the `@sql TRUNCATE TABLE foo` annotation
-will be converted into `$this->conn->exec('TRUNCATE TABLE foo')`.
+that comes after the tag as an argument. In other words, an annotation such as `@sql TRUNCATE TABLE foo` 
+is equivalent to `$this->conn->exec('TRUNCATE TABLE foo')`.
 
-The only thing left is to register our annotation:
+Also, just for the purpose of example, let's create a placeholder resolver that replaces `%table_name%`
+with a unique table name for a specific test method or/and class. That will allow using dynamic table names
+instead of hardcoded ones:
+
+```php
+namespace App\Tests\PhpUnit;
+
+use PHPUnitExtras\Annotation\PlaceholderResolver\PlaceholderResolver;
+use PHPUnitExtras\Annotation\Target;
+
+final class TableNameResolver implements PlaceholderResolver
+{
+    public function getName() : string
+    {
+        return 'table_name';
+    }
+
+    /**
+     * Replaces all occurrences of "%table_name%" with 
+     * "table_<short-class-name>[_<short-method-name>]".
+     */
+    public function resolve(string $value, Target $target) : string
+    {
+        $tableName = 'table_'.$target->getClassShortName();
+        if ($target->isOnMethod()) {
+            $tableName .= '_'.$target->getMethodShortName();
+        }
+
+        return strtr($value, ['%table_name%' => $tableName]);
+    }
+}
+```
+
+The only thing left is to register our new annotation:
 
 ```php
 namespace App\Tests;
 
 use App\Tests\PhpUnit\SqlProcessor;
+use App\Tests\PhpUnit\TableNameResolver;
 use PHPUnitExtras\Annotation\AnnotationProcessorBuilder;
 use PHPUnitExtras\TestCase as BaseTestCase;
 
@@ -328,7 +364,8 @@ abstract class TestCase extends BaseTestCase
     protected function createAnnotationProcessorBuilder() : AnnotationProcessorBuilder
     {
         return parent::createAnnotationProcessorBuilder()
-            ->addProcessor(new SqlProcessor($this->getConnection()));
+            ->addProcessor(new SqlProcessor($this->getConnection()))
+            ->addPlaceholderResolver(new TableNameResolver());
     }
 
     protected function getConnection() : \PDO
@@ -343,13 +380,13 @@ After that all classes inherited from `App\Tests\TestCase` will be able to use t
 > *Don't worry if you forgot to inherit from the base class where your annotations are registered 
 > or if you made a mistake in the annotation name, the library will warn you about an unknown annotation.*
 
-Another way to register this annotation is through PHPUnit extensions. As in the example above, 
-you need to override the `createAnnotationProcessorBuilder()` method, but now for the `AnnotationExtension` class:
+As mentioned [earlier](#registering-an-extension), another way to register annotations is through PHPUnit extensions.
+As in the example above, you need to override the `createAnnotationProcessorBuilder()` method,
+but now for the `AnnotationExtension` class:
 
 ```php
 namespace App\Tests\PhpUnit;
 
-use App\Tests\PhpUnit\SqlProcessor;
 use PHPUnitExtras\Annotation\AnnotationExtension as BaseAnnotationExtension;
 use PHPUnitExtras\Annotation\AnnotationProcessorBuilder;
 
@@ -366,7 +403,8 @@ class AnnotationExtension extends BaseAnnotationExtension
     protected function createAnnotationProcessorBuilder() : AnnotationProcessorBuilder
     {
         return parent::createAnnotationProcessorBuilder()
-            ->addProcessor(new SqlProcessor($this->getConnection()));
+            ->addProcessor(new SqlProcessor($this->getConnection()))
+            ->addPlaceholderResolver(new TableNameResolver());
     }
 
     protected function getConnection() : \PDO
@@ -405,6 +443,202 @@ To change the default connection settings, pass the new DSN value as an argument
 
 
 ## Expectations
+
+PHPUnit has a number of methods to set up expectations for code executed under test. Probably the most commonly used
+are the [expectException*](https://phpunit.readthedocs.io/en/latest/writing-tests-for-phpunit.html#testing-exceptions)
+and [expectOutput*](https://phpunit.readthedocs.io/en/latest/writing-tests-for-phpunit.html#testing-output) family of methods.
+The library provides the possibility to create your own expectations with ease.
+
+
+### Usage example
+
+As an example, let's create an expectation, which verifies that the code under test creates a file.
+Let's call it `FileCreatedExpectation`:
+
+```php
+namespace App\Tests\PhpUnit;
+
+use PHPUnit\Framework\Assert;
+use PHPUnitExtras\Expectation\Expectation;
+
+final class FileCreatedExpectation implements Expectation
+{
+    private $filename;
+
+    public function __construct(string $filename)
+    {
+        Assert::assertFileDoesNotExist($filename);
+        $this->filename = $filename;
+    }
+
+    public function verify() : void
+    {
+        Assert::assertFileExists($this->filename);
+    }
+}
+```
+
+Now, to be able to use this method, include the trait `PHPUnitExtras\Expectation\Expectations` in your test case class, 
+or inherit it from `PHPUnitExtras\TestCase`, where this trait is already included. 
+After that, call your expectation as shown below:
+
+```php
+public function testDumpPdfToFile() : void
+{
+    $filename = sprintf('%s/foobar.pdf', sys_get_temp_dir());
+
+    $this->expect(new FileCreatedExpectation($filename));
+    $this->generator->dump($filename);
+}
+```
+
+For convenience, you can put this statement in a separate method or even group your expectations into a trait:
+
+```php
+namespace App\Tests\PhpUnit;
+
+use PHPUnitExtras\Expectation\Expectation;
+
+trait FileExpectations
+{
+    public function expectFileToBeCreated(string $filename) : void
+    {
+        $this->expect(new FileCreatedExpectation($filename));
+    }
+
+    abstract protected function expect(Expectation $expectation) : void;
+}
+```
+
+### Advanced example
+
+Thanks to the Symfony [ExpressionLanguage](https://symfony.com/doc/current/components/expression_language.html) component, 
+you can create expectations with more complex verification rules without much hassle.
+
+As an example let's implement the `expectSelectStatementToBeExecutedOnce()` method from the picture above.
+To do this, create an expression context that will be responsible for collecting the necessary statistics 
+on `SELECT` statement calls:
+
+```php
+namespace App\Tests\PhpUnit;
+
+use PHPUnitExtras\Expectation\ExpressionContext;
+
+final class SelectStatementCountContext implements ExpressionContext
+{
+    private $conn;
+    private $expression;
+    private $initialValue;
+    private $finalValue;
+
+    private function __construct(\PDO $conn, string $expression)
+    {
+        $this->conn = $conn;
+        $this->expression = $expression;
+        $this->initialValue = $this->getValue();
+    }
+
+    public static function exactly(\PDO $conn, int $count) : self
+    {
+        return new self($conn, "new_count === old_count + $count");
+    }
+
+    public static function atLeast(\PDO $conn, int $count) : self
+    {
+        return new self($conn, "new_count >= old_count + $count");
+    }
+
+    public static function atMost(\PDO $conn, int $count) : self
+    {
+        return new self($conn, "new_count <= old_count + $count");
+    }
+
+    public function getExpression() : string
+    {
+        return $this->expression;
+    }
+
+    public function getValues() : array
+    {
+        if (null === $this->finalValue) {
+            $this->finalValue = $this->getValue();
+        }
+
+        return [
+            'old_count' => $this->initialValue,
+            'new_count' => $this->finalValue,
+        ];
+    }
+
+    private function getValue() : int
+    {
+        $stmt = $this->conn->query("SHOW GLOBAL STATUS LIKE 'Com_select'");
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn(1);
+    }
+}
+```
+
+Now create a trait which holds all our statement expectations:
+
+```php
+namespace App\Tests\PhpUnit;
+
+use PHPUnitExtras\Expectation\Expectation;
+use PHPUnitExtras\Expectation\ExpressionExpectation;
+
+trait SelectStatementExpectations
+{
+    public function expectSelectStatementToBeExecuted(int $count) : void
+    {
+        $context = SelectStatementCountContext::exactly($this->getConnection(), $count);
+        $this->expect(new ExpressionExpectation($context));
+    }
+
+    public function expectSelectStatementToBeExecutedOnce() : void
+    {
+        $this->expectSelectStatementToBeExecuted(1);
+    }
+
+    // ...
+
+    abstract protected function expect(Expectation $expectation) : void;
+    abstract protected function getConnection() : \PDO;
+}
+```
+
+And finally, include that trait in your test case class:
+
+```php
+use App\Tests\PhpUnit\SelectStatementExpectations;
+use PHPUnitExtras\TestCase;
+
+final class CacheableRepositoryTest extends TestCase
+{
+    use SelectStatementExpectations;
+
+    public function testFindByIdCachesResultSet() : void
+    {
+        $repository = $this->createRepository();
+
+        $this->expectSelectStatementToBeExecutedOnce();
+
+        $repository->findById(1);
+        $repository->findById(1);
+    }
+
+    // ...
+
+    protected function getConnection() : \PDO
+    {
+        // TODO: Implement getConnection() method.
+    }
+}
+```
+
+> *For inspiration and more examples of expectations take a look
+> at the [tarantool/phpunit-extras](https://github.com/tarantool-php/phpunit-extras#expectations) package.*
 
 
 ## Testing
