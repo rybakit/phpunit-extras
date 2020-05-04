@@ -43,7 +43,7 @@ where:
 composer require --dev rybakit/phpunit-extras
 ```
 
-In addition, depending on which functional you will use, you may need to install the following packages:
+In addition, depending on which functionality you will use, you may need to install the following packages:
 
 *To use version-related requirements:*
 ```bash
