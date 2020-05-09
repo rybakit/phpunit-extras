@@ -95,6 +95,11 @@ final class MyTest extends TestCase
 {
     use Annotations;
 
+    protected function setUp() : void
+    {
+        $this->processAnnotations(static::class, $this->getName(false) ?? '');
+    }
+
     // ...
 }
 ```
