@@ -41,4 +41,12 @@ abstract class TestCase extends BaseTestCase
 
         return $resolver->resolve($value, Target::fromTestCase($this));
     }
+
+    /**
+     * @after
+     */
+    final protected function verifyTestCaseExpectations() : void
+    {
+        $this->verifyExpectations();
+    }
 }

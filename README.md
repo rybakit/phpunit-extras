@@ -483,8 +483,25 @@ final class FileCreatedExpectation implements Expectation
 }
 ```
 
-Now, to be able to use this method, include the trait `PHPUnitExtras\Expectation\Expectations` in your test case class, 
-or inherit it from `PHPUnitExtras\TestCase`, where this trait is already included. 
+Now, to be able to use this expectation, inherit your test case class from `PHPUnitExtras\TestCase`
+(recommended) or include the `PHPUnitExtras\Expectation\Expectations` trait:
+
+```php
+use PHPUnit\Framework\TestCase;
+use PHPUnitExtras\Expectation\Expectations;
+
+final class MyTest extends TestCase
+{
+    use Expectations;
+
+    protected function tearDown() : void
+    {
+        $this->verifyExpectations();
+    }
+
+    // ...
+}
+```
 After that, call your expectation as shown below:
 
 ```php
@@ -497,7 +514,7 @@ public function testDumpPdfToFile() : void
 }
 ```
 
-For convenience, you can put this statement in a separate method or even group your expectations into a trait:
+For convenience, you can put this statement in a separate method and group your expectations into a trait:
 
 ```php
 namespace App\Tests\PhpUnit;
@@ -510,6 +527,8 @@ trait FileExpectations
     {
         $this->expect(new FileCreatedExpectation($filename));
     }
+
+    // ...
 
     abstract protected function expect(Expectation $expectation) : void;
 }

@@ -18,9 +18,6 @@ trait Expectations
     /** @var ChainExpectation|null */
     private $expectations;
 
-    /**
-     * @after
-     */
     final protected function verifyExpectations() : void
     {
         $this->getExpectations()->verify();
