@@ -1,6 +1,6 @@
 # PHPUnit Extras
 
-![Quality Assurance](https://github.com/rybakit/phpunit-extras/workflows/QA/badge.svg)
+[![Quality Assurance](https://github.com/rybakit/phpunit-extras/workflows/QA/badge.svg)](https://github.com/rybakit/phpunit-extras/actions?query=workflow%3AQA)
 
 This repository contains functionality that makes it easy to create and integrate
 your own annotations and expectations into the [PHPUnit](https://phpunit.de/) framework.
