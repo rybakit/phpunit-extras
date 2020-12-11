@@ -30,6 +30,8 @@ abstract class TestCase extends BaseTestCase
     {
         /**
          * @psalm-suppress TypeDoesNotContainType
+         * @psalm-suppress TypeDoesNotContainNull
+         * @psalm-suppress RedundantCondition
          * TestCase::getName() may return null on PHPUnit 7
          */
         $this->processAnnotations(static::class, $this->getName(false) ?? '');
