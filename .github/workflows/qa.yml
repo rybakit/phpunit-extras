@@ -1,5 +1,9 @@
 name: QA
-on: [push, workflow_dispatch]
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: '40 2 * * *'
 
 jobs:
   tests:
