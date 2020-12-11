@@ -23,8 +23,8 @@ final class RequiresProcessorTest extends TestCase
     public function testProcessProcessesRequirement() : void
     {
         $requirement = $this->createMock(Requirement::class);
-        $requirement->expects($this->once())->method('getName')->willReturn('Foobar');
-        $requirement->expects($this->once())->method('check')->with('42')->willReturn(null);
+        $requirement->expects(self::once())->method('getName')->willReturn('Foobar');
+        $requirement->expects(self::once())->method('check')->with('42')->willReturn(null);
 
         $processor = new RequiresProcessor([$requirement]);
         $processor->process('Foobar 42');
@@ -33,8 +33,8 @@ final class RequiresProcessorTest extends TestCase
     public function testProcessProcessesRequirementWithoutValue() : void
     {
         $requirement = $this->createMock(Requirement::class);
-        $requirement->expects($this->once())->method('getName')->willReturn('Foobar');
-        $requirement->expects($this->once())->method('check')->with('')->willReturn(null);
+        $requirement->expects(self::once())->method('getName')->willReturn('Foobar');
+        $requirement->expects(self::once())->method('check')->with('')->willReturn(null);
 
         $processor = new RequiresProcessor([$requirement]);
         $processor->process('Foobar');

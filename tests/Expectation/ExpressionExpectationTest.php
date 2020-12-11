@@ -34,8 +34,8 @@ final class ExpressionExpectationTest extends TestCase
 
     public function testVerifySucceeds() : void
     {
-        $this->context->expects($this->atLeastOnce())->method('getExpression')->willReturn('a + b === 3');
-        $this->context->expects($this->atLeastOnce())->method('getValues')->willReturn(['a' => 1, 'b' => 2]);
+        $this->context->expects(self::atLeastOnce())->method('getExpression')->willReturn('a + b === 3');
+        $this->context->expects(self::atLeastOnce())->method('getValues')->willReturn(['a' => 1, 'b' => 2]);
 
         $expectation = new ExpressionExpectation($this->context);
         $expectation->verify();
@@ -43,8 +43,8 @@ final class ExpressionExpectationTest extends TestCase
 
     public function testVerifyFails() : void
     {
-        $this->context->expects($this->atLeastOnce())->method('getExpression')->willReturn('a + b === 3');
-        $this->context->expects($this->atLeastOnce())->method('getValues')->willReturn(['a' => 1, 'b' => 7]);
+        $this->context->expects(self::atLeastOnce())->method('getExpression')->willReturn('a + b === 3');
+        $this->context->expects(self::atLeastOnce())->method('getValues')->willReturn(['a' => 1, 'b' => 7]);
 
         $expectation = new ExpressionExpectation($this->context);
 
