@@ -25,6 +25,6 @@ final class LogProcessor implements Processor
     public function process(string $value) : void
     {
         [$filename, $data] = explode(',', $value, 2);
-        file_put_contents($filename, "$data\n", FILE_APPEND);
+        file_put_contents($filename, "$data\n", \FILE_APPEND);
     }
 }
