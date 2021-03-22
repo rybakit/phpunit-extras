@@ -27,14 +27,14 @@ jobs:
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
       - name: Cache composer dependencies
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
 
       - name: Test with phpunit
         run: |
@@ -59,14 +59,14 @@ jobs:
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
       - name: Cache composer dependencies
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
 
       - name: Static Analysis using Psalm
         run: vendor/bin/psalm --show-info=true
@@ -78,12 +78,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup PHP
+      - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
-          tools: php-cs-fixer
+          php-version: '8.0'
           coverage: none
 
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+
       - name: Check code style
-        run: php-cs-fixer fix --dry-run --diff --verbose .
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff --verbose .
