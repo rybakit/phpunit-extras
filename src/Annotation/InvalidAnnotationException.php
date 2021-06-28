@@ -19,21 +19,21 @@ final class InvalidAnnotationException extends Exception
 {
     public static function unknownName(string $name) : self
     {
-        throw new self(sprintf('Unknown annotation "%s"', $name));
+        return new self(sprintf('Unknown annotation "%s"', $name));
     }
 
     public static function invalidSyntax(string $annotation, string $reason = '') : self
     {
-        throw new self(sprintf('Unable to parse "%s": %s', $annotation, $reason));
+        return new self(sprintf('Unable to parse "%s": %s', $annotation, $reason));
     }
 
     public static function unresolvedPlaceholder(string $placeholder) : self
     {
-        throw new self(sprintf('Unresolved placeholder "%s"', $placeholder));
+        return new self(sprintf('Unresolved placeholder "%s"', $placeholder));
     }
 
     public static function unknownRequirement(string $requirement) : self
     {
-        throw new self(sprintf('Unknown requirement "%s"', $requirement));
+        return new self(sprintf('Unknown requirement "%s"', $requirement));
     }
 }
