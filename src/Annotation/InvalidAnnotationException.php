@@ -15,6 +15,7 @@ namespace PHPUnitExtras\Annotation;
 
 use PHPUnit\Framework\Exception;
 
+/** @psalm-suppress InternalMethod */
 final class InvalidAnnotationException extends Exception
 {
     public static function unknownName(string $name) : self
