@@ -148,9 +148,9 @@ The library comes with the following requirements:
 @requires condition <condition>
 ```
 
-where `<condition>` is an arbitrary [expression](https://symfony.com/doc/current/components/expression_language.html#expression-syntax) that should be evaluated to a Boolean value.
-By default, you can refer to the following [superglobal variables](https://www.php.net/manual/en/language.variables.superglobals.php) in expressions:
-`cookie`, `env`, `get`, `files`, `post`, `request` and `server`.
+where `<condition>` is an arbitrary [expression](https://symfony.com/doc/current/components/expression_language.html#expression-syntax) 
+that should be evaluated to the Boolean value of true. By default, you can refer to the following [superglobal variables](https://www.php.net/manual/en/language.variables.superglobals.php) 
+in expressions: `cookie`, `env`, `get`, `files`, `post`, `request` and `server`.
 
 *Example:*
 
