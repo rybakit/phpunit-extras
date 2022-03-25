@@ -62,8 +62,9 @@ final class ConditionRequirement implements Requirement
      */
     private static function wrapGlobal(array $data) : \ArrayObject
     {
-        return new class ($data) extends \ArrayObject {
-            public function __get($key) {
+        return new class($data) extends \ArrayObject {
+            public function __get($key)
+            {
                 return $this->offsetExists($key) ? $this->offsetGet($key) : null;
             }
         };
