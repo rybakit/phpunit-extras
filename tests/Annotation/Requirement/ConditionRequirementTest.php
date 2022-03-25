@@ -39,6 +39,38 @@ final class ConditionRequirementTest extends TestCase
         self::assertNull($requirement->check('server.REQUEST_TIME > 0'));
     }
 
+    public function testCheckFailsForFalsyExpressionUsingGlobalContext() : void
+    {
+        $requirement = ConditionRequirement::fromGlobals();
+        $expr = 'server.REQUEST_TIME < 0';
+
+        self::assertSame("\"$expr\" is not evaluated to true", $requirement->check($expr));
+    }
+
+    /**
+     * @dataProvider provideSupportedGlobals
+     */
+    public function testCheckEvaluatesMissingKeyInGlobalContextToNull(string $globalName) : void
+    {
+        $requirement = ConditionRequirement::fromGlobals();
+        $expr = "$globalName.__MISSING_KEY__";
+
+        self::assertSame("\"$expr\" is not evaluated to true", $requirement->check($expr));
+    }
+
+    public function provideSupportedGlobals() : iterable
+    {
+        return [
+            ['cookie'],
+            ['env'],
+            ['get'],
+            ['files'],
+            ['post'],
+            ['request'],
+            ['server'],
+        ];
+    }
+
     public function testCheckPassesForTruthyExpressionUsingFunction() : void
     {
         $requirement = ConditionRequirement::fromGlobals();

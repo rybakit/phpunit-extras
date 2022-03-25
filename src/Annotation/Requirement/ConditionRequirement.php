@@ -32,13 +32,13 @@ final class ConditionRequirement implements Requirement
     public static function fromGlobals() : self
     {
         return new self([
-            'cookie' => new \ArrayObject($_COOKIE, \ArrayObject::ARRAY_AS_PROPS),
-            'env' => new \ArrayObject($_ENV, \ArrayObject::ARRAY_AS_PROPS),
-            'get' => new \ArrayObject($_GET, \ArrayObject::ARRAY_AS_PROPS),
-            'files' => new \ArrayObject($_FILES, \ArrayObject::ARRAY_AS_PROPS),
-            'post' => new \ArrayObject($_POST, \ArrayObject::ARRAY_AS_PROPS),
-            'request' => new \ArrayObject($_REQUEST, \ArrayObject::ARRAY_AS_PROPS),
-            'server' => new \ArrayObject($_SERVER, \ArrayObject::ARRAY_AS_PROPS),
+            'cookie' => self::wrapGlobal($_COOKIE),
+            'env' => self::wrapGlobal($_ENV),
+            'get' => self::wrapGlobal($_GET),
+            'files' => self::wrapGlobal($_FILES),
+            'post' => self::wrapGlobal($_POST),
+            'request' => self::wrapGlobal($_REQUEST),
+            'server' => self::wrapGlobal($_SERVER),
         ]);
     }
 
@@ -54,5 +54,18 @@ final class ConditionRequirement implements Requirement
         }
 
         return sprintf('"%s" is not evaluated to true', $value);
+    }
+
+    /**
+     * A workaround for unsupported "nullsafe" and "null coalescing" operators.
+     * @see https://github.com/symfony/symfony/issues/21691
+     */
+    private static function wrapGlobal(array $data) : \ArrayObject
+    {
+        return new class ($data) extends \ArrayObject {
+            public function __get($key) {
+                return $this->offsetExists($key) ? $this->offsetGet($key) : null;
+            }
+        };
     }
 }
