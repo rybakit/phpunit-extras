@@ -20,7 +20,7 @@ use PHPUnitExtras\Annotation\Requirement\Requirement;
 final class RequiresProcessor implements Processor
 {
     /**
-     * @see https://phpunit.readthedocs.io/en/9.0/incomplete-and-skipped-tests.html#skipping-tests-using-requires
+     * @see https://github.com/sebastianbergmann/phpunit/blob/7.1.0/src/Util/Test.php#L67-L90
      */
     private const PHPUNIT_REQUIREMENTS = [
         'PHP' => true,
@@ -29,6 +29,7 @@ final class RequiresProcessor implements Processor
         'OSFAMILY' => true,
         'function' => true,
         'extension' => true,
+        'setting' => true,
     ];
 
     /** @var array<string, Requirement> */
