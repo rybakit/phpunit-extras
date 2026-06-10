@@ -3,22 +3,22 @@
 [![Quality Assurance](https://github.com/rybakit/phpunit-extras/workflows/QA/badge.svg)](https://github.com/rybakit/phpunit-extras/actions?query=workflow%3AQA)
 
 This repository contains functionality that makes it easy to create and integrate
-your own annotations and expectations into the [PHPUnit](https://phpunit.de/) framework.
+your own attributes and expectations into the [PHPUnit](https://phpunit.de/) framework.
 In other words, with this library, your tests may look like this:
 
 ![https://raw.githubusercontent.com/rybakit/phpunit-extras/media/phpunit-extras-example.png](../media/phpunit-extras-example.png?raw=true)
 
 where:
 1. `MySqlServer ^5.6|^8.0` is a custom requirement
-2. `@sql` is a custom annotation
-3. `%target_method%` is an annotation placeholder
+2. `#[Sql(...)]` is a custom attribute
+3. `%target_method%` is an attribute placeholder
 4. `expectSelectStatementToBeExecutedOnce()` is a custom expectation.
 
 
 ## Table of contents
 
  * [Installation](#installation)
- * [Annotations](#annotations)
+ * [Attributes](#attributes)
    * [Processors](#processors)
      * [Requires](#requires)
    * [Requirements](#requirements)
@@ -29,7 +29,7 @@ where:
      * [TargetClass](#targetclass)
      * [TargetMethod](#targetmethod)
      * [TmpDir](#tmpdir)
-   * [Creating your own annotation](#creating-your-own-annotation)
+   * [Creating your own attribute](#creating-your-own-attribute)
  * [Expectations](#expectations)
    * [Usage example](#usage-example)
    * [Advanced example](#advanced-example)
@@ -52,7 +52,7 @@ composer require --dev composer/semver
 
 *To use the "package" requirement:*
 ```bash
-composer require --dev ocramius/package-versions
+composer require --dev composer/package-versions-deprecated
 ```
 
 *To use expression-based requirements and/or expectations:*
@@ -64,14 +64,14 @@ To install everything in one command, run:
 ```bash
 composer require --dev rybakit/phpunit-extras \
     composer/semver \
-    ocramius/package-versions \
+    composer/package-versions-deprecated \
     symfony/expression-language
 ```
 
 
-## Annotations
+## Attributes
 
-PHPUnit supports a variety of annotations, the full list of which can be found [here](https://phpunit.readthedocs.io/en/latest/annotations.html).
+PHPUnit supports a variety of attributes, the full list of which can be found in the PHPUnit manual.
 With this library, you can easily expand this list by using one of the following options:
 
 #### Inheriting from the base test case class
@@ -89,15 +89,17 @@ final class MyTest extends TestCase
 
 ```php
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnitExtras\Annotation\Annotations;
 
 final class MyTest extends TestCase
 {
     use Annotations;
 
-    protected function setUp() : void
+    #[Before]
+    protected function processTestAttributesBeforeTest() : void
     {
-        $this->processAnnotations(static::class, $this->getName(false) ?? '');
+        $this->processTestAttributes(static::class, $this->name());
     }
 
     // ...
@@ -114,27 +116,26 @@ final class MyTest extends TestCase
     <!-- ... -->
 
     <extensions>
-        <extension class="PHPUnitExtras\Annotation\AnnotationExtension" />
+        <bootstrap class="PHPUnitExtras\Annotation\AnnotationExtension" />
     </extensions>
 </phpunit>
 ```
 
-You can then use annotations provided by the library or created by yourself.
+You can then use attributes provided by the library or created by yourself.
 
 
 ### Processors
 
-The annotation processor is a class that implements the behavior of your annotation.
+The processor is a class that implements the behavior of your custom attribute.
 
 > *The library is currently shipped with only the "Required" processor.
-> For inspiration and more examples of annotation processors take a look
+> For inspiration and more examples of processors take a look
 > at the [tarantool/phpunit-extras](https://github.com/tarantool-php/phpunit-extras#processors) package.*
 
 
 #### Requires
 
-This processor extends the standard PHPUnit [@requires](https://phpunit.readthedocs.io/en/latest/annotations.html#requires) 
-annotation by allowing you to add your own requirements.
+This processor lets attributes use the existing requirement registry by passing a requirement type and value.
 
 ### Requirements
 
@@ -145,7 +146,7 @@ The library comes with the following requirements:
 *Format:*
 
 ```
-@requires condition <condition>
+#[Requires('condition', '<condition>')]
 ```
 
 where `<condition>` is an arbitrary [expression](https://symfony.com/doc/current/components/expression_language.html#expression-syntax) 
@@ -155,10 +156,10 @@ in expressions: `cookie`, `env`, `get`, `files`, `post`, `request` and `server`.
 *Example:*
 
 ```php
-/**
- * @requires condition server.AWS_ACCESS_KEY_ID
- * @requires condition server.AWS_SECRET_ACCESS_KEY
- */
+use PHPUnitExtras\Annotation\Attribute\Requires;
+
+#[Requires('condition', 'server.AWS_ACCESS_KEY_ID')]
+#[Requires('condition', 'server.AWS_SECRET_ACCESS_KEY')]
 final class AwsS3AdapterTest extends TestCase
 {
     // ...
@@ -182,16 +183,16 @@ $annotationProcessorBuilder->addRequirement(new ConditionRequirement($context));
 *Format:*
 
 ```
-@requires constant <constant-name>
+#[Requires('constant', '<constant-name>')]
 ```
 where `<constant-name>` is the constant name.
 
 *Example:*
 
 ```php
-/**
- * @requires constant Redis::SERIALIZER_MSGPACK
- */
+use PHPUnitExtras\Annotation\Attribute\Requires;
+
+#[Requires('constant', 'Redis::SERIALIZER_MSGPACK')]
 public function testSerializeToMessagePack() : void 
 {
     // ...
@@ -203,7 +204,7 @@ public function testSerializeToMessagePack() : void
 *Format:*
 
 ```
-@requires package <package-name> [<version-constraint>]
+#[Requires('package', '<package-name> [<version-constraint>]')]
 ```
 where `<package-name>` is the name of the required package and `<version-constraint>` is a composer-like version constraint.
 For details on supported constraint formats, please refer to the Composer [documentation](https://getcomposer.org/doc/articles/versions.md#writing-version-constraints).
@@ -211,9 +212,9 @@ For details on supported constraint formats, please refer to the Composer [docum
 *Example:*
 
 ```php
-/**
- * @requires package symfony/uid ^5.1
- */
+use PHPUnitExtras\Annotation\Attribute\Requires;
+
+#[Requires('package', 'symfony/uid ^5.1')]
 public function testUseUuidAsPrimaryKey() : void 
 {
     // ...
@@ -222,8 +223,8 @@ public function testUseUuidAsPrimaryKey() : void
 
 ### Placeholders
 
-Placeholders allow you to dynamically include specific values in your annotations.
-The placeholder is any text surrounded by the symbol `%`. An annotation can have
+Placeholders allow you to dynamically include specific values in your attribute strings.
+The placeholder is any text surrounded by the symbol `%`. An attribute can have
 any number of placeholders. If the placeholder is unknown, an error will be thrown.
 
 Below is a list of the placeholders available by default:
@@ -235,10 +236,8 @@ Below is a list of the placeholders available by default:
 ```php
 namespace App\Tests;
 
-/**
- * @example %target_class%
- * @example %target_class_full%
- */
+#[Example('%target_class%')]
+#[Example('%target_class_full%')]
 final class FoobarTest extends TestCase
 {
     // ...
@@ -254,10 +253,8 @@ and `%target_class_full%` will be substituted with `App\Tests\FoobarTest`.
 *Example:*
 
 ```php
-/**
- * @example %target_method%
- * @example %target_method_full%
- */
+#[Example('%target_method%')]
+#[Example('%target_method_full%')]
 public function testFoobar() : void 
 {
     // ...
@@ -273,9 +270,7 @@ and `%target_method_full%` will be substituted with `testFoobar`.
 *Example:*
 
 ```php
-/**
- * @log %tmp_dir%/%target_class%.%target_method%.log testing Foobar
- */
+#[Log('%tmp_dir%/%target_class%.%target_method%.log testing Foobar')]
 public function testFoobar() : void 
 {
     // ...
@@ -286,9 +281,9 @@ In the above example, `%tmp_dir%` will be substituted with the result
 of the [sys_get_temp_dir()](https://www.php.net/manual/en/function.sys-get-temp-dir.php) call.
 
 
-### Creating your own annotation
+### Creating your own attribute
 
-As an example, let's implement the annotation `@sql` from the picture above. To do this, create a processor class 
+As an example, let's implement a `#[Sql(...)]` attribute. First, create a processor class
 with the name `SqlProcessor`:
 
 ```php
@@ -317,9 +312,37 @@ final class SqlProcessor implements Processor
 }
 ```
 
-That's it. All this processor does is register the `@sql` tag and call `PDO::exec()`, passing everything
-that comes after the tag as an argument. In other words, an annotation such as `@sql TRUNCATE TABLE foo` 
+That's it. All this processor does is register the `sql` processor name and call `PDO::exec()`, passing the attribute value as an argument. In other words, an attribute such as `#[Sql('TRUNCATE TABLE foo')]`
 is equivalent to `$this->conn->exec('TRUNCATE TABLE foo')`.
+
+Next, create the attribute class that maps `#[Sql(...)]` to the `sql` processor name:
+
+```php
+namespace App\Tests\PhpUnit;
+
+use PHPUnitExtras\Annotation\Attribute\AnnotationAttribute;
+
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
+final class Sql implements AnnotationAttribute
+{
+    private string $value;
+
+    public function __construct(string $value)
+    {
+        $this->value = $value;
+    }
+
+    public function getName() : string
+    {
+        return 'sql';
+    }
+
+    public function getValue() : string
+    {
+        return $this->value;
+    }
+}
+```
 
 Also, just for the purpose of example, let's create a placeholder resolver that replaces `%table_name%`
 with a unique table name for a specific test method or/and class. That will allow using dynamic table names
@@ -354,7 +377,7 @@ final class TableNameResolver implements PlaceholderResolver
 }
 ```
 
-The only thing left is to register our new annotation:
+The only thing left is to register our new processor:
 
 ```php
 namespace App\Tests;
@@ -380,12 +403,11 @@ abstract class TestCase extends BaseTestCase
 }
 ```
 
-After that all classes inherited from `App\Tests\TestCase` will be able to use the tag `@sql`.
+After that all classes inherited from `App\Tests\TestCase` will be able to use `#[Sql(...)]`.
 
-> *Don't worry if you forgot to inherit from the base class where your annotations are registered 
-> or if you made a mistake in the annotation name, the library will warn you about an unknown annotation.*
+> *If an attribute returns a processor name that was not registered, the library will warn you about unknown metadata.*
 
-As mentioned [earlier](#registering-an-extension), another way to register annotations is through PHPUnit extensions.
+As mentioned [earlier](#registering-an-extension), another way to register attributes is through PHPUnit extensions.
 As in the example above, you need to override the `createAnnotationProcessorBuilder()` method,
 but now for the `AnnotationExtension` class:
 
@@ -394,15 +416,22 @@ namespace App\Tests\PhpUnit;
 
 use PHPUnitExtras\Annotation\AnnotationExtension as BaseAnnotationExtension;
 use PHPUnitExtras\Annotation\AnnotationProcessorBuilder;
+use PHPUnit\Runner\Extension\Facade;
+use PHPUnit\Runner\Extension\ParameterCollection;
+use PHPUnit\TextUI\Configuration\Configuration;
 
 class AnnotationExtension extends BaseAnnotationExtension
 {
-    private $dsn;
-    private $conn;
+    private string $dsn = 'mysql:host=localhost;dbname=test';
+    private ?\PDO $conn = null;
 
-    public function __construct($dsn = 'mysql:host=localhost;dbname=test')
+    public function bootstrap(Configuration $configuration, Facade $facade, ParameterCollection $parameters) : void
     {
-        $this->dsn = $dsn;
+        if ($parameters->has('dsn')) {
+            $this->dsn = $parameters->get('dsn');
+        }
+
+        parent::bootstrap($configuration, $facade, $parameters);
     }
 
     protected function createAnnotationProcessorBuilder() : AnnotationProcessorBuilder
@@ -421,37 +450,34 @@ class AnnotationExtension extends BaseAnnotationExtension
 After that, register your extension:
 
 ```xml
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
-    bootstrap="vendor/autoload.php"
->
+	<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+	    bootstrap="vendor/autoload.php"
+	>
     <!-- ... -->
 
-    <extensions>
-        <extension class="App\Tests\PhpUnit\AnnotationExtension" />
-    </extensions>
-</phpunit>
-```
+	    <extensions>
+	        <bootstrap class="App\Tests\PhpUnit\AnnotationExtension" />
+	    </extensions>
+	</phpunit>
+	```
 
-To change the default connection settings, pass the new DSN value as an argument:
+To change the default connection settings, pass the new DSN value as a parameter:
 
 ```xml
-<extension class="App\Tests\PhpUnit\AnnotationExtension">
-    <arguments>
-        <string>sqlite::memory:</string>
-    </arguments>
-</extension>
+<bootstrap class="App\Tests\PhpUnit\AnnotationExtension">
+    <parameter name="dsn" value="sqlite::memory:" />
+</bootstrap>
 ```
 
-> *For more information on configuring extensions, please follow this [link](https://phpunit.readthedocs.io/en/latest/extending-phpunit.html#configuring-extensions).*
+> *For more information on configuring extensions, please refer to the PHPUnit manual.*
 
 
 
 ## Expectations
 
 PHPUnit has a number of methods to set up expectations for code executed under test. Probably the most commonly used
-are the [expectException*](https://phpunit.readthedocs.io/en/latest/writing-tests-for-phpunit.html#testing-exceptions)
-and [expectOutput*](https://phpunit.readthedocs.io/en/latest/writing-tests-for-phpunit.html#testing-output) family of methods.
+are the `expectException*` and `expectOutput*` family of methods.
 The library provides the possibility to create your own expectations with ease.
 
 

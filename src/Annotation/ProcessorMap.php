@@ -20,24 +20,14 @@ final class ProcessorMap
     /** @var array<string, Processor> */
     private $processors = [];
 
-    /** @var array<string, true> */
-    private $ignoredAnnotationNames;
-
-    /** @var bool */
-    private $ignoreUnknownAnnotations;
-
     /**
      * @param array<array-key, Processor> $processors
-     * @param array<array-key, string> $ignoredAnnotationNames
      */
-    public function __construct(array $processors, array $ignoredAnnotationNames = [], bool $ignoreUnknownAnnotations = false)
+    public function __construct(array $processors)
     {
         foreach ($processors as $processor) {
             $this->addProcessor($processor);
         }
-
-        $this->ignoredAnnotationNames = array_fill_keys($ignoredAnnotationNames, true);
-        $this->ignoreUnknownAnnotations = $ignoreUnknownAnnotations;
     }
 
     public function get(string $name) : Processor
@@ -53,14 +43,6 @@ final class ProcessorMap
     {
         if (isset($this->processors[$name])) {
             return $this->processors[$name];
-        }
-
-        if (isset($this->ignoredAnnotationNames[$name])) {
-            return null;
-        }
-
-        if ($this->ignoreUnknownAnnotations) {
-            return null;
         }
 
         throw InvalidAnnotationException::unknownName($name);

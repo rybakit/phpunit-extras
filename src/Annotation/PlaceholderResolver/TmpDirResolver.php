@@ -17,11 +17,13 @@ use PHPUnitExtras\Annotation\Target;
 
 final class TmpDirResolver implements PlaceholderResolver
 {
+    #[\Override]
     public function getName() : string
     {
         return 'tmp_dir';
     }
 
+    #[\Override]
     public function resolve(string $value, Target $target) : string
     {
         return strtr($value, ['%tmp_dir%' => sys_get_temp_dir()]);

@@ -35,11 +35,13 @@ final class ChainResolver implements PlaceholderResolver
         return $this;
     }
 
+    #[\Override]
     public function getName() : string
     {
         return 'chain';
     }
 
+    #[\Override]
     public function resolve(string $value, Target $target) : string
     {
         foreach ($this->resolvers as $resolver) {

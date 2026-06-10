@@ -18,6 +18,7 @@ use Symfony\Component\ExpressionLanguage\ExpressionFunctionProviderInterface;
 
 final class ConditionFunctionProvider implements ExpressionFunctionProviderInterface
 {
+    #[\Override]
     public function getFunctions() : array
     {
         return [

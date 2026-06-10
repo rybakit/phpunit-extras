@@ -13,16 +13,20 @@ declare(strict_types=1);
 
 namespace PHPUnitExtras\Annotation;
 
-use PHPUnit\Runner\BeforeTestHook;
+use PHPUnit\Runner\Extension\Extension;
+use PHPUnit\Runner\Extension\Facade;
+use PHPUnit\Runner\Extension\ParameterCollection;
+use PHPUnit\TextUI\Configuration\Configuration;
 
-class AnnotationExtension implements BeforeTestHook
+class AnnotationExtension implements Extension
 {
     use Annotations;
 
-    public function executeBeforeTest(string $test) : void
+    private ?AnnotationProcessorBuilder $processorBuilder = null;
+
+    #[\Override]
+    public function bootstrap(Configuration $configuration, Facade $facade, ParameterCollection $parameters) : void
     {
-        /** @var class-string $class */
-        [$class, $method] = preg_split('/ |::/', $test);
-        $this->processAnnotations($class, $method);
+        $facade->registerSubscriber(new AnnotationSubscriber($this));
     }
 }

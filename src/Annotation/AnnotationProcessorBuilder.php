@@ -36,16 +36,9 @@ final class AnnotationProcessorBuilder
     /** @var array<string, PlaceholderResolver> */
     private $placeholderResolvers = [];
 
-    /** @var array<string, true> */
-    private $ignoredAnnotations = [];
-
-    /** @var bool */
-    private $ignoreUnknownAnnotations = false;
-
     public static function fromDefaults() : self
     {
         return (new self())
-            ->ignoreEstablishedAnnotations()
             ->addRequirement(ConditionRequirement::fromGlobals())
             ->addRequirement(new ConstantRequirement())
             ->addRequirement(new PackageRequirement())
@@ -80,27 +73,6 @@ final class AnnotationProcessorBuilder
         return $this;
     }
 
-    public function ignoreUnknownAnnotations(bool $ignore = true) : self
-    {
-        $this->ignoreUnknownAnnotations = $ignore;
-
-        return $this;
-    }
-
-    public function ignoreAnnotation(string $name) : self
-    {
-        $this->ignoredAnnotations[$name] = true;
-
-        return $this;
-    }
-
-    public function ignoreEstablishedAnnotations() : self
-    {
-        $this->ignoredAnnotations = EstablishedAnnotationNames::ALL + $this->ignoredAnnotations;
-
-        return $this;
-    }
-
     public function build() : AnnotationProcessor
     {
         $processors = $this->processors;
@@ -111,7 +83,7 @@ final class AnnotationProcessorBuilder
         }
 
         return new AnnotationProcessor(
-            new ProcessorMap($processors, array_keys($this->ignoredAnnotations), $this->ignoreUnknownAnnotations),
+            new ProcessorMap($processors),
             new ChainResolver($this->placeholderResolvers)
         );
     }

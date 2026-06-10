@@ -15,17 +15,19 @@ namespace PHPUnitExtras\Annotation\Requirement;
 
 final class ConstantRequirement implements Requirement
 {
+    #[\Override]
     public function getName() : string
     {
         return 'constant';
     }
 
+    #[\Override]
     public function check(string $value) : ?string
     {
         if (\defined($value)) {
             return null;
         }
 
-        return sprintf('The constant "%s" is undefined', $value);
+        return \sprintf('The constant "%s" is undefined', $value);
     }
 }

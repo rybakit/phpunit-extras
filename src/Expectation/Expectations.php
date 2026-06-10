@@ -15,8 +15,7 @@ namespace PHPUnitExtras\Expectation;
 
 trait Expectations
 {
-    /** @var ChainExpectation|null */
-    private $expectations;
+    private ?ChainExpectation $expectations = null;
 
     final protected function verifyExpectations() : void
     {

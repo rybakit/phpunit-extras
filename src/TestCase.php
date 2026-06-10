@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace PHPUnitExtras;
 
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use PHPUnitExtras\Annotation\Annotations;
 use PHPUnitExtras\Annotation\Target;
@@ -23,18 +25,10 @@ abstract class TestCase extends BaseTestCase
     use Annotations;
     use Expectations;
 
-    /**
-     * @before
-     */
+    #[Before]
     final protected function processTestCaseAnnotations() : void
     {
-        /**
-         * @psalm-suppress TypeDoesNotContainType
-         * @psalm-suppress TypeDoesNotContainNull
-         * @psalm-suppress RedundantCondition
-         * TestCase::getName() may return null on PHPUnit 7
-         */
-        $this->processAnnotations(static::class, $this->getName(false) ?? '');
+        $this->processTestAttributes(static::class, $this->name());
     }
 
     final protected function resolvePlaceholders(string $value) : string
@@ -44,9 +38,7 @@ abstract class TestCase extends BaseTestCase
         return $resolver->resolve($value, Target::fromTestCase($this));
     }
 
-    /**
-     * @after
-     */
+    #[After]
     final protected function verifyTestCaseExpectations() : void
     {
         $this->verifyExpectations();

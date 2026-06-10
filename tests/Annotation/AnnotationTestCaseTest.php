@@ -16,10 +16,8 @@ namespace PHPUnitExtras\Tests\Annotation;
 use PHPUnitExtras\Annotation\AnnotationProcessorBuilder;
 use PHPUnitExtras\TestCase;
 
-/**
- * @log %tmp_dir%/%target_class%.log,class annotation 1
- * @log %tmp_dir%/%target_class%.log,class annotation 2
- */
+#[Log('%tmp_dir%/%target_class%.log,class annotation 1')]
+#[Log('%tmp_dir%/%target_class%.log,class annotation 2')]
 final class AnnotationTestCaseTest extends TestCase
 {
     public static function setUpBeforeClass() : void
@@ -33,10 +31,8 @@ final class AnnotationTestCaseTest extends TestCase
             ->addProcessor(new LogProcessor());
     }
 
-    /**
-     * @log %tmp_dir%/%target_class%.log,method annotation 1
-     * @log %tmp_dir%/%target_class%.log,method annotation 2
-     */
+    #[Log('%tmp_dir%/%target_class%.log,method annotation 1')]
+    #[Log('%tmp_dir%/%target_class%.log,method annotation 2')]
     public function testAllAnnotationsAreProcessed() : void
     {
         $filename = self::getLogFilename();
@@ -63,7 +59,7 @@ final class AnnotationTestCaseTest extends TestCase
 
     private static function getLogFilename() : string
     {
-        return sprintf('%s/%s.log',
+        return \sprintf('%s/%s.log',
             sys_get_temp_dir(),
             (new \ReflectionClass(__CLASS__))->getShortName()
         );

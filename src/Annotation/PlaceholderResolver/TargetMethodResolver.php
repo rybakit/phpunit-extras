@@ -17,11 +17,13 @@ use PHPUnitExtras\Annotation\Target;
 
 final class TargetMethodResolver implements PlaceholderResolver
 {
+    #[\Override]
     public function getName() : string
     {
         return 'target_method';
     }
 
+    #[\Override]
     public function resolve(string $value, Target $target) : string
     {
         if (!$target->isOnMethod()) {

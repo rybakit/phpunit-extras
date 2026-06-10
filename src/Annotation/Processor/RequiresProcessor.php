@@ -53,11 +53,13 @@ final class RequiresProcessor implements Processor
         return $this->requirements;
     }
 
+    #[\Override]
     public function getName() : string
     {
         return 'requires';
     }
 
+    #[\Override]
     public function process(string $value) : void
     {
         [$reqName, $reqValue] = explode(' ', $value, 2) + [1 => ''];

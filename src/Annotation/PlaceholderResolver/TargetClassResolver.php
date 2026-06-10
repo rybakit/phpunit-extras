@@ -17,11 +17,13 @@ use PHPUnitExtras\Annotation\Target;
 
 final class TargetClassResolver implements PlaceholderResolver
 {
+    #[\Override]
     public function getName() : string
     {
         return 'target_class';
     }
 
+    #[\Override]
     public function resolve(string $value, Target $target) : string
     {
         return strtr($value, [

@@ -13,28 +13,25 @@ declare(strict_types=1);
 
 namespace PHPUnitExtras\Annotation;
 
-use PHPUnit\Framework\Exception;
-
-/** @psalm-suppress InternalMethod */
-final class InvalidAnnotationException extends Exception
+final class InvalidAnnotationException extends \RuntimeException
 {
     public static function unknownName(string $name) : self
     {
-        return new self(sprintf('Unknown annotation "%s"', $name));
+        return new self(\sprintf('Unknown annotation "%s"', $name));
     }
 
     public static function invalidSyntax(string $annotation, string $reason = '') : self
     {
-        return new self(sprintf('Unable to parse "%s": %s', $annotation, $reason));
+        return new self(\sprintf('Unable to parse "%s": %s', $annotation, $reason));
     }
 
     public static function unresolvedPlaceholder(string $placeholder) : self
     {
-        return new self(sprintf('Unresolved placeholder "%s"', $placeholder));
+        return new self(\sprintf('Unresolved placeholder "%s"', $placeholder));
     }
 
     public static function unknownRequirement(string $requirement) : self
     {
-        return new self(sprintf('Unknown requirement "%s"', $requirement));
+        return new self(\sprintf('Unknown requirement "%s"', $requirement));
     }
 }

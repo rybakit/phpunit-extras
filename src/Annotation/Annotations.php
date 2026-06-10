@@ -13,15 +13,14 @@ declare(strict_types=1);
 
 namespace PHPUnitExtras\Annotation;
 
-use PHPUnit\Util\Test;
+use PHPUnitExtras\Annotation\Attribute\AnnotationAttribute;
 
 trait Annotations
 {
-    /** @var AnnotationProcessor|null */
-    private $annotationProcessor;
+    private ?AnnotationProcessor $annotationProcessor = null;
 
     /** @var array<string, true> */
-    private static $processedClasses = [];
+    private array $processedClasses = [];
 
     protected function createAnnotationProcessorBuilder() : AnnotationProcessorBuilder
     {
@@ -31,21 +30,38 @@ trait Annotations
     /**
      * @param class-string $class
      */
-    private function processAnnotations(string $class, string $method) : void
+    final public function processTestAttributes(string $class, string $method) : void
     {
-        $annotations = Test::parseTestMethodAnnotations($class, $method);
+        $classAttributes = $this->collectAttributes(new \ReflectionClass($class));
 
-        if ($annotations['class'] && !isset(self::$processedClasses[$class])) {
-            $this->getAnnotationProcessor()->process($annotations['class'], new Target($class));
-            self::$processedClasses[$class] = true;
+        if ($classAttributes && !isset($this->processedClasses[$class])) {
+            $this->getAnnotationProcessor()->process($classAttributes, new Target($class));
+            $this->processedClasses[$class] = true;
         }
 
-        if ($annotations['method']) {
-            $this->getAnnotationProcessor()->process($annotations['method'], new Target($class, $method));
+        $methodAttributes = $this->collectAttributes(new \ReflectionMethod($class, $method));
+        if ($methodAttributes) {
+            $this->getAnnotationProcessor()->process($methodAttributes, new Target($class, $method));
         }
     }
 
-    private function getAnnotationProcessor() : AnnotationProcessor
+    /**
+     * @return array<string, list<string>>
+     */
+    private function collectAttributes(\ReflectionClass|\ReflectionMethod $reflector) : array
+    {
+        $annotations = [];
+        foreach ($reflector->getAttributes(AnnotationAttribute::class, \ReflectionAttribute::IS_INSTANCEOF) as $attribute) {
+            $instance = $attribute->newInstance();
+            \assert($instance instanceof AnnotationAttribute);
+
+            $annotations[$instance->getName()][] = $instance->getValue();
+        }
+
+        return $annotations;
+    }
+
+    final protected function getAnnotationProcessor() : AnnotationProcessor
     {
         if ($this->annotationProcessor) {
             return $this->annotationProcessor;

@@ -14,49 +14,36 @@ declare(strict_types=1);
 namespace PHPUnitExtras\Expectation;
 
 use PHPUnit\Framework\Constraint\Constraint;
-use SebastianBergmann\Exporter\Exporter;
 
 final class IsTruthyExpression extends Constraint
 {
-    private $context;
-
-    /** @var Exporter|null */
-    private $compatExporter;
+    private ExpressionContext $context;
 
     public function __construct(ExpressionContext $context)
     {
         $this->context = $context;
     }
 
+    #[\Override]
     public function toString() : string
     {
         return 'is evaluated to true';
     }
 
+    #[\Override]
     protected function matches($other) : bool
     {
         return true === $other;
     }
 
+    #[\Override]
     protected function failureDescription($other) : string
     {
-        return sprintf(
+        return \sprintf(
             "\"%s\" with values\n    %s\n%s",
             $this->context->getExpression(),
             $this->exporter()->export($this->context->getValues(), 1),
             $this->toString()
         );
-    }
-
-    /**
-     * Needed for backward compatibility with PHPUnit 7.
-     */
-    protected function exporter() : Exporter
-    {
-        if (null === $this->compatExporter) {
-            $this->compatExporter = new Exporter();
-        }
-
-        return $this->compatExporter;
     }
 }

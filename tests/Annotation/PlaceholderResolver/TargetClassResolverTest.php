@@ -13,15 +13,14 @@ declare(strict_types=1);
 
 namespace PHPUnitExtras\Tests\Annotation\PlaceholderResolver;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use PHPUnitExtras\Annotation\PlaceholderResolver\TargetClassResolver;
 use PHPUnitExtras\Annotation\Target;
 
 final class TargetClassResolverTest extends TestCase
 {
-    /**
-     * @dataProvider provideResolveSubstitutesSupportedPlaceholdersData()
-     */
+    #[DataProvider('provideResolveSubstitutesSupportedPlaceholdersData')]
     public function testResolveSubstitutesSupportedPlaceholders(string $value, Target $target, $expectedResult) : void
     {
         $resolver = new TargetClassResolver();
@@ -29,12 +28,12 @@ final class TargetClassResolverTest extends TestCase
         self::assertSame($expectedResult, $resolver->resolve($value, $target));
     }
 
-    public function provideResolveSubstitutesSupportedPlaceholdersData() : iterable
+    public static function provideResolveSubstitutesSupportedPlaceholdersData() : iterable
     {
         $classTarget = new Target(__CLASS__);
         $methodTarget = new Target(__CLASS__, __METHOD__);
-        $resolvedValue = sprintf('[%s]', (new \ReflectionClass(__CLASS__))->getShortName());
-        $resolvedFullValue = sprintf('[%s]', __CLASS__);
+        $resolvedValue = \sprintf('[%s]', (new \ReflectionClass(__CLASS__))->getShortName());
+        $resolvedFullValue = \sprintf('[%s]', __CLASS__);
 
         return [
             ['[%target_class%]', $classTarget, $resolvedValue],

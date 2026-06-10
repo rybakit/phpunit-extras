@@ -18,15 +18,16 @@ use PackageVersions\Versions;
 
 final class PackageRequirement implements Requirement
 {
+    #[\Override]
     public function getName() : string
     {
         return 'package';
     }
 
+    #[\Override]
     public function check(string $value) : ?string
     {
         /**
-         * @var string $packageName
          * @see https://github.com/vimeo/psalm/issues/3118
          */
         [$packageName, $versionConstraints] = explode(' ', $value, 2) + [1 => null];
@@ -34,7 +35,7 @@ final class PackageRequirement implements Requirement
         try {
             $packageVersion = Versions::getVersion($packageName);
         } catch (\OutOfBoundsException $e) {
-            return sprintf('Package "%s" is required', $value);
+            return \sprintf('Package "%s" is required', $value);
         }
 
         if (!$versionConstraints) {
@@ -46,6 +47,6 @@ final class PackageRequirement implements Requirement
             return null;
         }
 
-        return sprintf('"%s" version %s is required', $packageName, $versionConstraints);
+        return \sprintf('"%s" version %s is required', $packageName, $versionConstraints);
     }
 }

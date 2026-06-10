@@ -17,8 +17,8 @@ use PHPUnit\Framework\TestCase;
 
 final class Target
 {
-    private $className;
-    private $methodName;
+    private string $className;
+    private ?string $methodName;
 
     /**
      * @param class-string $className
@@ -31,7 +31,7 @@ final class Target
 
     public static function fromTestCase(TestCase $testCase) : self
     {
-        return new self(\get_class($testCase), $testCase->getName(false));
+        return new self($testCase::class, $testCase->name());
     }
 
     public function getClassName() : string
@@ -52,7 +52,7 @@ final class Target
     public function getMethodName() : string
     {
         if (null === $this->methodName) {
-            throw new \LogicException(sprintf('Class level target "%s" does not have method name', $this->className));
+            throw new \LogicException(\sprintf('Class level target "%s" does not have method name', $this->className));
         }
 
         return $this->methodName;
@@ -62,7 +62,7 @@ final class Target
     {
         $methodName = $this->getMethodName();
 
-        return 0 === strpos($methodName, 'test')
+        return str_starts_with($methodName, 'test')
             ? substr($methodName, 4)
             : $methodName;
     }

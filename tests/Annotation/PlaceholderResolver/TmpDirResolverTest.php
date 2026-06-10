@@ -13,15 +13,14 @@ declare(strict_types=1);
 
 namespace PHPUnitExtras\Tests\Annotation\PlaceholderResolver;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use PHPUnitExtras\Annotation\PlaceholderResolver\TmpDirResolver;
 use PHPUnitExtras\Annotation\Target;
 
 final class TmpDirResolverTest extends TestCase
 {
-    /**
-     * @dataProvider provideResolveSubstitutesSupportedPlaceholderData
-     */
+    #[DataProvider('provideResolveSubstitutesSupportedPlaceholderData')]
     public function testResolveSubstitutesSupportedPlaceholder(string $value, $expectedResult) : void
     {
         $resolver = new TmpDirResolver();
@@ -29,7 +28,7 @@ final class TmpDirResolverTest extends TestCase
         self::assertSame($expectedResult, $resolver->resolve($value, new Target('fooClass')));
     }
 
-    public function provideResolveSubstitutesSupportedPlaceholderData() : iterable
+    public static function provideResolveSubstitutesSupportedPlaceholderData() : iterable
     {
         return [
             ['[%tmp_dir%]', '['.sys_get_temp_dir().']'],

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace PHPUnitExtras\Tests\Annotation\Requirement;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use PHPUnitExtras\Annotation\Requirement\ConditionRequirement;
 
@@ -47,9 +48,7 @@ final class ConditionRequirementTest extends TestCase
         self::assertSame("\"$expr\" is not evaluated to true", $requirement->check($expr));
     }
 
-    /**
-     * @dataProvider provideSupportedGlobals
-     */
+    #[DataProvider('provideSupportedGlobals')]
     public function testCheckEvaluatesMissingKeyInGlobalContextToNull(string $globalName) : void
     {
         $requirement = ConditionRequirement::fromGlobals();
@@ -58,7 +57,7 @@ final class ConditionRequirementTest extends TestCase
         self::assertSame("\"$expr\" is not evaluated to true", $requirement->check($expr));
     }
 
-    public function provideSupportedGlobals() : iterable
+    public static function provideSupportedGlobals() : iterable
     {
         return [
             ['cookie'],

@@ -30,6 +30,7 @@ final class ExpressionExpectation implements Expectation
         $this->language = $language ?: new ExpressionLanguage();
     }
 
+    #[\Override]
     public function verify() : void
     {
         $expression = $this->context->getExpression();

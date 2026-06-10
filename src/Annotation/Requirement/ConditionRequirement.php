@@ -42,26 +42,32 @@ final class ConditionRequirement implements Requirement
         ]);
     }
 
+    #[\Override]
     public function getName() : string
     {
         return 'condition';
     }
 
+    #[\Override]
     public function check(string $value) : ?string
     {
         if ($this->language->evaluate($value, $this->context)) {
             return null;
         }
 
-        return sprintf('"%s" is not evaluated to true', $value);
+        return \sprintf('"%s" is not evaluated to true', $value);
     }
 
     /**
      * A workaround for unsupported "nullsafe" and "null coalescing" operators.
      * @see https://github.com/symfony/symfony/issues/21691
+     *
+     * @param array<array-key, mixed> $data
+     * @return \ArrayObject<array-key, mixed>
      */
     private static function wrapGlobal(array $data) : \ArrayObject
     {
+        /** @psalm-suppress MissingTemplateParam */
         return new class($data) extends \ArrayObject {
             public function __get($key)
             {

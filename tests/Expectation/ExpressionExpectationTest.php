@@ -18,12 +18,9 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use PHPUnitExtras\Expectation\ExpressionContext;
 use PHPUnitExtras\Expectation\ExpressionExpectation;
-use PHPUnitExtras\Tests\PHPUnitCompat;
 
 final class ExpressionExpectationTest extends TestCase
 {
-    use PHPUnitCompat;
-
     /** @var ExpressionContext|MockObject */
     private $context;
 

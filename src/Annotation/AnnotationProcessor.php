@@ -17,8 +17,8 @@ use PHPUnitExtras\Annotation\PlaceholderResolver\PlaceholderResolver;
 
 final class AnnotationProcessor
 {
-    private $processorMap;
-    private $placeholderResolver;
+    private ProcessorMap $processorMap;
+    private PlaceholderResolver $placeholderResolver;
 
     public function __construct(ProcessorMap $processorMap, PlaceholderResolver $placeholderResolver)
     {

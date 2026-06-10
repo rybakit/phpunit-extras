@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace PHPUnitExtras\Tests\Annotation\Processor;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use PHPUnitExtras\Annotation\InvalidAnnotationException;
 use PHPUnitExtras\Annotation\Processor\RequiresProcessor;
@@ -52,10 +54,8 @@ final class RequiresProcessorTest extends TestCase
         $processor->process('Bazqux 42');
     }
 
-    /**
-     * @doesNotPerformAssertions
-     * @dataProvider provideProcessSkipsPhpUnitRequirementsData
-     */
+    #[DoesNotPerformAssertions]
+    #[DataProvider('provideProcessSkipsPhpUnitRequirementsData')]
     public function testProcessSkipsPhpUnitRequirements(string $phpunitRequirement) : void
     {
         $requirement = $this->createMock(Requirement::class);
@@ -65,7 +65,7 @@ final class RequiresProcessorTest extends TestCase
         $processor->process($phpunitRequirement);
     }
 
-    public function provideProcessSkipsPhpUnitRequirementsData() : iterable
+    public static function provideProcessSkipsPhpUnitRequirementsData() : iterable
     {
         return [
             ['PHP 8.0'],
