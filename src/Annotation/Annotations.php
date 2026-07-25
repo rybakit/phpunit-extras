@@ -30,7 +30,7 @@ trait Annotations
     /**
      * @param class-string $class
      */
-    final public function processTestAttributes(string $class, string $method) : void
+    public function processTestAttributes(string $class, string $method) : void
     {
         $classAttributes = $this->collectAttributes(new \ReflectionClass($class));
 
@@ -61,7 +61,7 @@ trait Annotations
         return $annotations;
     }
 
-    final protected function getAnnotationProcessor() : AnnotationProcessor
+    protected function getAnnotationProcessor() : AnnotationProcessor
     {
         if ($this->annotationProcessor) {
             return $this->annotationProcessor;

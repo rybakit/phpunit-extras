@@ -22,8 +22,6 @@ class AnnotationExtension implements Extension
 {
     use Annotations;
 
-    private ?AnnotationProcessorBuilder $processorBuilder = null;
-
     #[\Override]
     public function bootstrap(Configuration $configuration, Facade $facade, ParameterCollection $parameters) : void
     {
