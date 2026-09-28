@@ -30,15 +30,12 @@ final class CacheableRepositoryTest extends TestCase
 }
 ```
 
-`RequiresMySqlServer` and `Sql` are project-defined attributes, handled by a
-custom requirement and processor. This example shows how they fit together:
+Here:
 
-| Example element | Role |
-| --- | --- |
-| `#[RequiresMySqlServer(...)]` | Custom MySQL 5.6 or 8.0 requirement |
-| `#[Sql(...)]` | Repeatable SQL setup attribute |
-| `%target_method%` | Placeholder resolved for this test method |
-| `expectSelectStatementToBeExecutedOnce()` | Custom expectation checking the repository behavior |
+* `#[RequiresMySqlServer('^5.6|^8.0')]` is a custom requirement.
+* `#[Sql(...)]` is a custom attribute.
+* `%target_method%` is an attribute placeholder.
+* `expectSelectStatementToBeExecutedOnce()` is a custom expectation.
 
 
 ## Table of contents
@@ -67,14 +64,14 @@ custom requirement and processor. This example shows how they fit together:
 composer require --dev rybakit/phpunit-extras
 ```
 
-In addition, depending on which functionality you will use, you may need to install the following packages:
+Depending on which functionality you use, you may also need to install these packages:
 
 *To use version-related requirements:*
 ```bash
 composer require --dev composer/semver
 ```
 
-*To use the "package" requirement:*
+*To use the `package` requirement:*
 Composer 2 is required for the built-in package version lookup used by the `package` requirement.
 
 *To use expression-based requirements and/or expectations:*
@@ -157,8 +154,8 @@ The library comes with the following requirements:
 #[RequiresIf('<condition>')]
 ```
 
-where `<condition>` is an arbitrary [expression](https://symfony.com/doc/current/components/expression_language.html#expression-syntax) 
-that should be evaluated to the Boolean value of true. By default, you can refer to the following [superglobal variables](https://www.php.net/manual/en/language.variables.superglobals.php) 
+where `<condition>` is an arbitrary [expression](https://symfony.com/doc/current/components/expression_language.html#expression-syntax)
+that should evaluate to `true`. By default, you can refer to the following [superglobal variables](https://www.php.net/manual/en/language.variables.superglobals.php)
 in expressions: `cookie`, `env`, `get`, `files`, `post`, `request` and `server`.
 
 *Example:*
@@ -212,7 +209,10 @@ final class FeatureRequirement implements Requirement
 
     public function check(ProcessableAttribute $attribute, Target $target, PlaceholderResolver $placeholderResolver) : ?string
     {
-        \assert($attribute instanceof RequiresFeature);
+        if (!$attribute instanceof RequiresFeature) {
+            throw new \InvalidArgumentException('FeatureRequirement only handles RequiresFeature attributes');
+        }
+
         $feature = $placeholderResolver->resolve($attribute->feature, $target);
 
         return FeatureFlags::isEnabled($feature)
@@ -248,8 +248,8 @@ public function testSerializeToMessagePack() : void
 #### Package
 
 *Format:* `#[RequiresPackage('<package-name> [<version-constraint>]')]`
-where `<package-name>` is the name of the required package and `<version-constraint>` is a composer-like version constraint.
-For details on supported constraint formats, please refer to the Composer [documentation](https://getcomposer.org/doc/articles/versions.md#writing-version-constraints).
+where `<package-name>` is the required package name and `<version-constraint>` is a Composer-style version constraint.
+See the Composer [documentation](https://getcomposer.org/doc/articles/versions.md#writing-version-constraints) for supported constraint formats.
 
 *Example:*
 
@@ -265,8 +265,8 @@ public function testUseUuidAsPrimaryKey() : void
 
 ### Placeholders
 
-Placeholders allow you to include values that depend on the target test in string arguments
-to custom attributes. A placeholder is any text surrounded by `%`. If it is unknown, an error is thrown.
+Placeholders let you include values that depend on the target test in string arguments
+to custom attributes. A placeholder is any text surrounded by `%`. An error is thrown for unknown placeholders.
 
 Below is a list of the placeholders available by default:
 
@@ -285,8 +285,8 @@ final class FoobarTest extends TestCase
 }
 ```
 
-In the above example, `%target_class%` will be substituted with `FoobarTest` 
-and `%target_class_full%` will be substituted with `App\Tests\FoobarTest`.
+In the example above, `%target_class%` is replaced with `FoobarTest`,
+and `%target_class_full%` is replaced with `App\Tests\FoobarTest`.
 
 
 #### TargetMethod
@@ -302,8 +302,8 @@ public function testFoobar() : void
 }
 ```
 
-In the above example, `%target_method%` will be substituted with `Foobar` 
-and `%target_method_full%` will be substituted with `testFoobar`.
+In the example above, `%target_method%` is replaced with `Foobar`,
+and `%target_method_full%` is replaced with `testFoobar`.
 
 
 #### TmpDir
@@ -318,14 +318,14 @@ public function testFoobar() : void
 }
 ```
 
-In the above example, `%tmp_dir%` will be substituted with the result 
+In the example above, `%tmp_dir%` is replaced with the result
 of the [sys_get_temp_dir()](https://www.php.net/manual/en/function.sys-get-temp-dir.php) call.
 
 
 ### Creating your own attribute
 
 As an example, let's implement a `#[Sql(...)]` attribute. First, create a processor class
-with the name `SqlProcessor`:
+named `SqlProcessor`:
 
 ```php
 namespace App\Tests\PhpUnit;
@@ -378,8 +378,8 @@ final class Sql implements ProcessableAttribute
 ```
 
 The processor can use the placeholder resolver it receives to replace `%table_name%`
-with a unique table name for a specific test method or/and class. That will allow using dynamic table names
-instead of hardcoded ones:
+with a unique table name for a specific test method or class. This lets you use dynamic table names
+instead of hard-coded ones:
 
 ```php
 namespace App\Tests\PhpUnit;
@@ -436,13 +436,12 @@ abstract class TestCase extends BaseTestCase
 }
 ```
 
-After that all classes inherited from `App\Tests\TestCase` will be able to use `#[Sql(...)]`.
+After that, all classes that extend `App\Tests\TestCase` can use `#[Sql(...)]`.
 
 If no processor is registered for an attribute class, the library throws an `InvalidAttributeException`.
 
-As mentioned [earlier](#registering-an-extension), another way to register attributes is through PHPUnit extensions.
-As in the example above, you need to override the `createAttributeProcessorBuilder()` method,
-but now for the `AttributeExtension` class:
+As mentioned [earlier](#registering-an-extension), you can also register attributes through PHPUnit extensions.
+To do this, override the `createAttributeProcessorBuilder()` method in your `AttributeExtension` class:
 
 ```php
 namespace App\Tests\PhpUnit;
@@ -480,7 +479,7 @@ class AttributeExtension extends BaseAttributeExtension
     }
 }
 ```
-After that, register your extension:
+Then register your extension:
 
 ```xml
 	<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -509,14 +508,14 @@ To change the default connection settings, pass the new DSN value as a parameter
 
 ## Expectations
 
-PHPUnit has a number of methods to set up expectations for code executed under test. Probably the most commonly used
-are the `expectException*` and `expectOutput*` family of methods.
-The library provides the possibility to create your own expectations with ease.
+PHPUnit provides several methods for setting expectations about code under test.
+The most commonly used are the `expectException*` and `expectOutput*` methods.
+This library also lets you create custom expectations.
 
 
 ### Usage example
 
-As an example, let's create an expectation, which verifies that the code under test creates a file.
+As an example, let's create an expectation that verifies the code under test creates a file.
 Let's call it `FileCreatedExpectation`:
 
 ```php
@@ -542,8 +541,8 @@ final class FileCreatedExpectation implements Expectation
 }
 ```
 
-Now, to be able to use this expectation, inherit your test case class from `PHPUnitExtras\TestCase`
-(recommended) or include the `PHPUnitExtras\Expectation\Expectations` trait:
+To use this expectation, extend `PHPUnitExtras\TestCase` (recommended)
+or include the `PHPUnitExtras\Expectation\Expectations` trait in your test case:
 
 ```php
 use PHPUnit\Framework\TestCase;
@@ -561,7 +560,7 @@ final class MyTest extends TestCase
     // ...
 }
 ```
-After that, call your expectation as shown below:
+Then use the expectation as shown below:
 
 ```php
 public function testDumpPdfToFile() : void
@@ -595,12 +594,11 @@ trait FileExpectations
 
 ### Advanced example
 
-Thanks to the Symfony [ExpressionLanguage](https://symfony.com/doc/current/components/expression_language.html) component, 
-you can create expectations with more complex verification rules without much hassle.
+The Symfony [ExpressionLanguage](https://symfony.com/doc/current/components/expression_language.html) component
+lets you create expectations with more complex verification rules.
 
-As an example let's implement the `expectSelectStatementToBeExecutedOnce()` method mentioned above.
-To do this, create an expression context that will be responsible for collecting the necessary statistics 
-on `SELECT` statement calls:
+As an example, let's implement the `expectSelectStatementToBeExecutedOnce()` method mentioned above.
+First, create an expression context that collects statistics on `SELECT` statement calls:
 
 ```php
 namespace App\Tests\PhpUnit;
