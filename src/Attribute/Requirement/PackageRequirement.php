@@ -46,7 +46,7 @@ final class PackageRequirement implements Requirement
             return \sprintf('Package "%s" is required', $value);
         }
 
-        if (!$versionConstraints) {
+        if (null === $versionConstraints || '' === $versionConstraints) {
             return null;
         }
 

@@ -17,6 +17,7 @@ use PHPUnit\Framework\TestCase;
 
 final class Target
 {
+    /** @var class-string */
     private string $className;
     private ?string $methodName;
 
@@ -69,7 +70,7 @@ final class Target
 
     public function toString() : string
     {
-        return $this->methodName
+        return null !== $this->methodName
             ? "$this->className::$this->methodName"
             : $this->className;
     }

@@ -18,6 +18,7 @@ use PHPUnit\Runner\Extension\Facade;
 use PHPUnit\Runner\Extension\ParameterCollection;
 use PHPUnit\TextUI\Configuration\Configuration;
 
+/** @psalm-suppress ClassMustBeFinal This extension is intended to be extended. */
 class AttributeExtension implements Extension
 {
     use Attributes;

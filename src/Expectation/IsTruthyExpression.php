@@ -32,13 +32,13 @@ final class IsTruthyExpression extends Constraint
     }
 
     #[\Override]
-    protected function matches($other) : bool
+    protected function matches(mixed $other) : bool
     {
         return true === $other;
     }
 
     #[\Override]
-    protected function failureDescription($other) : string
+    protected function failureDescription(mixed $other) : string
     {
         return \sprintf(
             "\"%s\" with values\n    %s\n%s",

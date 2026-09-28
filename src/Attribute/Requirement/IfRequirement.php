@@ -78,7 +78,7 @@ final class IfRequirement implements Requirement
     {
         /** @psalm-suppress MissingTemplateParam */
         return new class($data) extends \ArrayObject {
-            public function __get($key)
+            public function __get(string $key) : mixed
             {
                 return $this->offsetExists($key) ? $this->offsetGet($key) : null;
             }
