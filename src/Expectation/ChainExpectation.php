@@ -25,6 +25,7 @@ final class ChainExpectation implements Expectation
         $this->expectations[] = $expectation;
     }
 
+    #[\Override]
     public function verify() : void
     {
         try {
