@@ -16,24 +16,24 @@ namespace PHPUnitExtras;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use PHPUnitExtras\Annotation\Annotations;
-use PHPUnitExtras\Annotation\Target;
+use PHPUnitExtras\Attribute\Attributes;
+use PHPUnitExtras\Attribute\Target;
 use PHPUnitExtras\Expectation\Expectations;
 
 abstract class TestCase extends BaseTestCase
 {
-    use Annotations;
+    use Attributes;
     use Expectations;
 
     #[Before]
-    final protected function processTestCaseAnnotations() : void
+    final protected function processTestCaseAttributes() : void
     {
         $this->processTestAttributes(static::class, $this->name());
     }
 
     final protected function resolvePlaceholders(string $value) : string
     {
-        $resolver = $this->getAnnotationProcessor()->getPlaceholderResolver();
+        $resolver = $this->getAttributeProcessor()->getPlaceholderResolver();
 
         return $resolver->resolve($value, Target::fromTestCase($this));
     }

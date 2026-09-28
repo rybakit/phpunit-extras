@@ -13,8 +13,8 @@
     </php>
 
     <testsuites>
-        <testsuite name="AnnotationExtension">
-            <file>tests/Annotation/AnnotationExtensionTest.php</file>
+        <testsuite name="AttributeExtension">
+            <file>tests/Attribute/AttributeExtensionTest.php</file>
         </testsuite>
     </testsuites>
 
@@ -25,6 +25,6 @@
     </source>
 
     <extensions>
-        <bootstrap class="PHPUnitExtras\Tests\Annotation\LoggableAnnotationExtension" />
+        <bootstrap class="PHPUnitExtras\Tests\Attribute\LoggableAttributeExtension" />
     </extensions>
 </phpunit>

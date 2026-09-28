@@ -2,25 +2,49 @@
 
 [![Quality Assurance](https://github.com/rybakit/phpunit-extras/workflows/QA/badge.svg)](https://github.com/rybakit/phpunit-extras/actions?query=workflow%3AQA)
 
-This repository contains functionality that makes it easy to create and integrate
-your own attributes and expectations into the [PHPUnit](https://phpunit.de/) framework.
+This repository contains functionality that makes it easy to create custom attributes and expectations
+and use them with the [PHPUnit](https://phpunit.de/) framework.
 In other words, with this library, your tests may look like this:
 
-![https://raw.githubusercontent.com/rybakit/phpunit-extras/media/phpunit-extras-example.png](../media/phpunit-extras-example.png?raw=true)
+```php
+use App\Tests\Attribute\RequiresMySqlServer;
+use App\Tests\Attribute\Sql;
+use PHPUnitExtras\TestCase;
 
-where:
-1. `MySqlServer ^5.6|^8.0` is a custom requirement
-2. `#[Sql(...)]` is a custom attribute
-3. `%target_method%` is an attribute placeholder
-4. `expectSelectStatementToBeExecutedOnce()` is a custom expectation.
+#[RequiresMySqlServer('^5.6|^8.0')]
+final class CacheableRepositoryTest extends TestCase
+{
+    #[Sql('DROP TABLE IF EXISTS %target_method%')]
+    #[Sql('CREATE TABLE %target_method% (id INT UNSIGNED PRIMARY KEY)')]
+    #[Sql('INSERT INTO %target_method% (id) VALUES (1)')]
+    public function testFindByIdCachesResultSet() : void
+    {
+        $tableName = $this->resolvePlaceholders('%target_method%');
+        $repository = $this->createRepository($tableName);
+
+        $this->expectSelectStatementToBeExecutedOnce();
+
+        $repository->findById(1);
+        $repository->findById(1);
+    }
+}
+```
+
+`RequiresMySqlServer` and `Sql` are project-defined attributes, handled by a
+custom requirement and processor. This example shows how they fit together:
+
+| Example element | Role |
+| --- | --- |
+| `#[RequiresMySqlServer(...)]` | Custom MySQL 5.6 or 8.0 requirement |
+| `#[Sql(...)]` | Repeatable SQL setup attribute |
+| `%target_method%` | Placeholder resolved for this test method |
+| `expectSelectStatementToBeExecutedOnce()` | Custom expectation checking the repository behavior |
 
 
 ## Table of contents
 
  * [Installation](#installation)
  * [Attributes](#attributes)
-   * [Processors](#processors)
-     * [Requires](#requires)
    * [Requirements](#requirements)
      * [Condition](#condition)
      * [Constant](#constant)
@@ -51,9 +75,7 @@ composer require --dev composer/semver
 ```
 
 *To use the "package" requirement:*
-```bash
-composer require --dev composer/package-versions-deprecated
-```
+Composer 2 is required for the built-in package version lookup used by the `package` requirement.
 
 *To use expression-based requirements and/or expectations:*
 ```bash
@@ -64,7 +86,6 @@ To install everything in one command, run:
 ```bash
 composer require --dev rybakit/phpunit-extras \
     composer/semver \
-    composer/package-versions-deprecated \
     symfony/expression-language
 ```
 
@@ -90,11 +111,11 @@ final class MyTest extends TestCase
 ```php
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Before;
-use PHPUnitExtras\Annotation\Annotations;
+use PHPUnitExtras\Attribute\Attributes;
 
 final class MyTest extends TestCase
 {
-    use Annotations;
+    use Attributes;
 
     #[Before]
     protected function processTestAttributesBeforeTest() : void
@@ -116,26 +137,13 @@ final class MyTest extends TestCase
     <!-- ... -->
 
     <extensions>
-        <bootstrap class="PHPUnitExtras\Annotation\AnnotationExtension" />
+        <bootstrap class="PHPUnitExtras\Attribute\AttributeExtension" />
     </extensions>
 </phpunit>
 ```
 
 You can then use attributes provided by the library or created by yourself.
 
-
-### Processors
-
-The processor is a class that implements the behavior of your custom attribute.
-
-> *The library is currently shipped with only the "Required" processor.
-> For inspiration and more examples of processors take a look
-> at the [tarantool/phpunit-extras](https://github.com/tarantool-php/phpunit-extras#processors) package.*
-
-
-#### Requires
-
-This processor lets attributes use the existing requirement registry by passing a requirement type and value.
 
 ### Requirements
 
@@ -145,8 +153,8 @@ The library comes with the following requirements:
 
 *Format:*
 
-```
-#[Requires('condition', '<condition>')]
+```php
+#[RequiresIf('<condition>')]
 ```
 
 where `<condition>` is an arbitrary [expression](https://symfony.com/doc/current/components/expression_language.html#expression-syntax) 
@@ -156,10 +164,10 @@ in expressions: `cookie`, `env`, `get`, `files`, `post`, `request` and `server`.
 *Example:*
 
 ```php
-use PHPUnitExtras\Annotation\Attribute\Requires;
+use PHPUnitExtras\Attribute\RequiresIf;
 
-#[Requires('condition', 'server.AWS_ACCESS_KEY_ID')]
-#[Requires('condition', 'server.AWS_SECRET_ACCESS_KEY')]
+#[RequiresIf('server.AWS_ACCESS_KEY_ID')]
+#[RequiresIf('server.AWS_SECRET_ACCESS_KEY')]
 final class AwsS3AdapterTest extends TestCase
 {
     // ...
@@ -169,30 +177,68 @@ final class AwsS3AdapterTest extends TestCase
 You can also define your own variables in expressions:
 
 ```php
-use PHPUnitExtras\Annotation\Requirement\ConditionRequirement;
+use PHPUnitExtras\Attribute\Requirement\IfRequirement;
 
 // ...
 
 $context = ['db' => $this->getDbConnection()];
-$annotationProcessorBuilder->addRequirement(new ConditionRequirement($context));
+$attributeProcessorBuilder->addRequirement(new IfRequirement($context));
 ```
+
+For a custom requirement, define its attribute and a `Requirement` that handles that attribute class:
+
+```php
+namespace App\Tests;
+
+use PHPUnitExtras\Attribute\ProcessableAttribute;
+use PHPUnitExtras\Attribute\PlaceholderResolver\PlaceholderResolver;
+use PHPUnitExtras\Attribute\Requirement\Requirement;
+use PHPUnitExtras\Attribute\Target;
+
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
+final class RequiresFeature implements ProcessableAttribute
+{
+    public function __construct(public readonly string $feature)
+    {
+    }
+}
+
+final class FeatureRequirement implements Requirement
+{
+    public function getAttributeClass() : string
+    {
+        return RequiresFeature::class;
+    }
+
+    public function check(ProcessableAttribute $attribute, Target $target, PlaceholderResolver $placeholderResolver) : ?string
+    {
+        \assert($attribute instanceof RequiresFeature);
+        $feature = $placeholderResolver->resolve($attribute->feature, $target);
+
+        return FeatureFlags::isEnabled($feature)
+            ? null
+            : \sprintf('Feature "%s" is required', $feature);
+    }
+}
+```
+
+Register the requirement in your test case builder with
+`$builder->addRequirement(new FeatureRequirement())`, then use `#[RequiresFeature('new-checkout')]`.
+The requirement gets the typed attribute, test target, and placeholder resolver. Return `null` to run the test;
+return a message to skip it.
 
 
 #### Constant
 
-*Format:*
-
-```
-#[Requires('constant', '<constant-name>')]
-```
+*Format:* `#[RequiresConstant('<constant-name>')]`
 where `<constant-name>` is the constant name.
 
 *Example:*
 
 ```php
-use PHPUnitExtras\Annotation\Attribute\Requires;
+use PHPUnitExtras\Attribute\RequiresConstant;
 
-#[Requires('constant', 'Redis::SERIALIZER_MSGPACK')]
+#[RequiresConstant('Redis::SERIALIZER_MSGPACK')]
 public function testSerializeToMessagePack() : void 
 {
     // ...
@@ -201,20 +247,16 @@ public function testSerializeToMessagePack() : void
 
 #### Package
 
-*Format:*
-
-```
-#[Requires('package', '<package-name> [<version-constraint>]')]
-```
+*Format:* `#[RequiresPackage('<package-name> [<version-constraint>]')]`
 where `<package-name>` is the name of the required package and `<version-constraint>` is a composer-like version constraint.
 For details on supported constraint formats, please refer to the Composer [documentation](https://getcomposer.org/doc/articles/versions.md#writing-version-constraints).
 
 *Example:*
 
 ```php
-use PHPUnitExtras\Annotation\Attribute\Requires;
+use PHPUnitExtras\Attribute\RequiresPackage;
 
-#[Requires('package', 'symfony/uid ^5.1')]
+#[RequiresPackage('symfony/uid ^5.1')]
 public function testUseUuidAsPrimaryKey() : void 
 {
     // ...
@@ -223,9 +265,8 @@ public function testUseUuidAsPrimaryKey() : void
 
 ### Placeholders
 
-Placeholders allow you to dynamically include specific values in your attribute strings.
-The placeholder is any text surrounded by the symbol `%`. An attribute can have
-any number of placeholders. If the placeholder is unknown, an error will be thrown.
+Placeholders allow you to include values that depend on the target test in string arguments
+to custom attributes. A placeholder is any text surrounded by `%`. If it is unknown, an error is thrown.
 
 Below is a list of the placeholders available by default:
 
@@ -289,7 +330,10 @@ with the name `SqlProcessor`:
 ```php
 namespace App\Tests\PhpUnit;
 
-use PHPUnitExtras\Annotation\Processor\Processor;
+use PHPUnitExtras\Attribute\Processor\Processor;
+use PHPUnitExtras\Attribute\ProcessableAttribute;
+use PHPUnitExtras\Attribute\PlaceholderResolver\PlaceholderResolver;
+use PHPUnitExtras\Attribute\Target;
 
 final class SqlProcessor implements Processor
 {
@@ -300,59 +344,48 @@ final class SqlProcessor implements Processor
         $this->conn = $conn;
     }
 
-    public function getName() : string
+    public function getAttributeClasses() : array
     {
-        return 'sql';
+        return [Sql::class];
     }
 
-    public function process(string $value) : void
+    public function process(ProcessableAttribute $attribute, Target $target, PlaceholderResolver $placeholderResolver) : void
     {
-        $this->conn->exec($value);
+        \assert($attribute instanceof Sql);
+        $sql = $placeholderResolver->resolve($attribute->sql, $target);
+        $this->conn->exec($sql);
     }
 }
 ```
 
-That's it. All this processor does is register the `sql` processor name and call `PDO::exec()`, passing the attribute value as an argument. In other words, an attribute such as `#[Sql('TRUNCATE TABLE foo')]`
+The processor declares which attribute class it handles, resolves placeholders in its SQL, and calls `PDO::exec()`. An attribute such as `#[Sql('TRUNCATE TABLE foo')]`
 is equivalent to `$this->conn->exec('TRUNCATE TABLE foo')`.
 
-Next, create the attribute class that maps `#[Sql(...)]` to the `sql` processor name:
+Next, create the attribute class. Its class is the key the processor registers for:
 
 ```php
 namespace App\Tests\PhpUnit;
 
-use PHPUnitExtras\Annotation\Attribute\AnnotationAttribute;
+use PHPUnitExtras\Attribute\ProcessableAttribute;
 
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
-final class Sql implements AnnotationAttribute
+final class Sql implements ProcessableAttribute
 {
-    private string $value;
-
-    public function __construct(string $value)
+    public function __construct(public readonly string $sql)
     {
-        $this->value = $value;
-    }
-
-    public function getName() : string
-    {
-        return 'sql';
-    }
-
-    public function getValue() : string
-    {
-        return $this->value;
     }
 }
 ```
 
-Also, just for the purpose of example, let's create a placeholder resolver that replaces `%table_name%`
+The processor can use the placeholder resolver it receives to replace `%table_name%`
 with a unique table name for a specific test method or/and class. That will allow using dynamic table names
 instead of hardcoded ones:
 
 ```php
 namespace App\Tests\PhpUnit;
 
-use PHPUnitExtras\Annotation\PlaceholderResolver\PlaceholderResolver;
-use PHPUnitExtras\Annotation\Target;
+use PHPUnitExtras\Attribute\PlaceholderResolver\PlaceholderResolver;
+use PHPUnitExtras\Attribute\Target;
 
 final class TableNameResolver implements PlaceholderResolver
 {
@@ -384,14 +417,14 @@ namespace App\Tests;
 
 use App\Tests\PhpUnit\SqlProcessor;
 use App\Tests\PhpUnit\TableNameResolver;
-use PHPUnitExtras\Annotation\AnnotationProcessorBuilder;
+use PHPUnitExtras\Attribute\AttributeProcessorBuilder;
 use PHPUnitExtras\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
-    protected function createAnnotationProcessorBuilder() : AnnotationProcessorBuilder
+    protected function createAttributeProcessorBuilder() : AttributeProcessorBuilder
     {
-        return parent::createAnnotationProcessorBuilder()
+        return parent::createAttributeProcessorBuilder()
             ->addProcessor(new SqlProcessor($this->getConnection()))
             ->addPlaceholderResolver(new TableNameResolver());
     }
@@ -405,22 +438,22 @@ abstract class TestCase extends BaseTestCase
 
 After that all classes inherited from `App\Tests\TestCase` will be able to use `#[Sql(...)]`.
 
-> *If an attribute returns a processor name that was not registered, the library will warn you about unknown metadata.*
+If no processor is registered for an attribute class, the library throws an `InvalidAttributeException`.
 
 As mentioned [earlier](#registering-an-extension), another way to register attributes is through PHPUnit extensions.
-As in the example above, you need to override the `createAnnotationProcessorBuilder()` method,
-but now for the `AnnotationExtension` class:
+As in the example above, you need to override the `createAttributeProcessorBuilder()` method,
+but now for the `AttributeExtension` class:
 
 ```php
 namespace App\Tests\PhpUnit;
 
-use PHPUnitExtras\Annotation\AnnotationExtension as BaseAnnotationExtension;
-use PHPUnitExtras\Annotation\AnnotationProcessorBuilder;
+use PHPUnitExtras\Attribute\AttributeExtension as BaseAttributeExtension;
+use PHPUnitExtras\Attribute\AttributeProcessorBuilder;
 use PHPUnit\Runner\Extension\Facade;
 use PHPUnit\Runner\Extension\ParameterCollection;
 use PHPUnit\TextUI\Configuration\Configuration;
 
-class AnnotationExtension extends BaseAnnotationExtension
+class AttributeExtension extends BaseAttributeExtension
 {
     private string $dsn = 'mysql:host=localhost;dbname=test';
     private ?\PDO $conn = null;
@@ -434,9 +467,9 @@ class AnnotationExtension extends BaseAnnotationExtension
         parent::bootstrap($configuration, $facade, $parameters);
     }
 
-    protected function createAnnotationProcessorBuilder() : AnnotationProcessorBuilder
+    protected function createAttributeProcessorBuilder() : AttributeProcessorBuilder
     {
-        return parent::createAnnotationProcessorBuilder()
+        return parent::createAttributeProcessorBuilder()
             ->addProcessor(new SqlProcessor($this->getConnection()))
             ->addPlaceholderResolver(new TableNameResolver());
     }
@@ -457,7 +490,7 @@ After that, register your extension:
     <!-- ... -->
 
 	    <extensions>
-	        <bootstrap class="App\Tests\PhpUnit\AnnotationExtension" />
+	        <bootstrap class="App\Tests\PhpUnit\AttributeExtension" />
 	    </extensions>
 	</phpunit>
 	```
@@ -465,7 +498,7 @@ After that, register your extension:
 To change the default connection settings, pass the new DSN value as a parameter:
 
 ```xml
-<bootstrap class="App\Tests\PhpUnit\AnnotationExtension">
+<bootstrap class="App\Tests\PhpUnit\AttributeExtension">
     <parameter name="dsn" value="sqlite::memory:" />
 </bootstrap>
 ```
@@ -565,7 +598,7 @@ trait FileExpectations
 Thanks to the Symfony [ExpressionLanguage](https://symfony.com/doc/current/components/expression_language.html) component, 
 you can create expectations with more complex verification rules without much hassle.
 
-As an example let's implement the `expectSelectStatementToBeExecutedOnce()` method from the picture above.
+As an example let's implement the `expectSelectStatementToBeExecutedOnce()` method mentioned above.
 To do this, create an expression context that will be responsible for collecting the necessary statistics 
 on `SELECT` statement calls:
 

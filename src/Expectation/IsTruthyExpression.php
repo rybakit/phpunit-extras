@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace PHPUnitExtras\Expectation;
 
 use PHPUnit\Framework\Constraint\Constraint;
+use SebastianBergmann\Exporter\Exporter;
 
 final class IsTruthyExpression extends Constraint
 {
@@ -42,7 +43,7 @@ final class IsTruthyExpression extends Constraint
         return \sprintf(
             "\"%s\" with values\n    %s\n%s",
             $this->context->getExpression(),
-            $this->exporter()->export($this->context->getValues(), 1),
+            (new Exporter())->export($this->context->getValues(), 1),
             $this->toString()
         );
     }

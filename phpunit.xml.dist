@@ -15,7 +15,7 @@
     <testsuites>
         <testsuite name="PHPUnit Extras">
             <directory>tests</directory>
-            <exclude>tests/Annotation/AnnotationExtensionTest.php</exclude>
+            <exclude>tests/Attribute/AttributeExtensionTest.php</exclude>
         </testsuite>
     </testsuites>
 
